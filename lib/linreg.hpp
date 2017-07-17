@@ -26,11 +26,11 @@ namespace linreg {
     inline double getConstant() const {
       return(theta(dim));
     }
+    const int dim;
+    const double lambda;
   private:
     arma::vec theta, yvec;
     arma::mat b, xmat;
     int points;
-    const int dim;
-    const double lambda;
   };
 }
