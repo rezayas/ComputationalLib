@@ -9,4 +9,4 @@ testa: testa.o
 testb: testb.o
 	c++ testb.o ../lib/linreg.o ../lib/no_lapack_workaround.o -larmadillo -o testb
 clean:
-	rm $(OFILES) testa testb
+	-rm $(OFILES) testa testb

@@ -10,5 +10,5 @@
 #define INVERT workaround_invert
 #endif
 #include <armadillo>
-extern arma::vec &&workaround_solve(arma::mat, arma::vec);
-extern arma::mat &&workaround_invert(arma::mat);
+extern arma::vec workaround_solve(arma::mat, arma::vec);
+extern arma::mat workaround_invert(arma::mat);

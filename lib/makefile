@@ -6,4 +6,4 @@ all: $(OFILES)
 $(OFILES): %.o: %.cpp $(if $(shell test -e %.hpp), %.hpp) no_lapack_workaround.hpp
 	c++ -c -std=c++11 $<
 clean:
-	rm $(OFILES)
+	-rm $(OFILES)

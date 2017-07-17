@@ -28,22 +28,22 @@ static void revsub(const mat &a, vec &b) {
 }
 
 // Inverts the input lower-triangular matrix, with ones on the diagonal.
-static mat &&ltinv(const mat &a) {
+static mat ltinv(const mat &a) {
   mat b(a.n_rows, a.n_rows, fill::eye);
-  for(i = 0; i < a.n_rows; i++)
-    forsub(a, b.col(i));
+  b.each_col([&](vec &bc) {forsub(a, bc); });
+  return(b);
 }
 
-vec &&workaround_solve(mat A, vec B) {
+vec workaround_solve(mat A, vec B) {
   LDL_decompose(A);
   forsub(A, B);
   B /= A.diag();
   revsub(A, B);
   return(B);
 }
-mat &&workaround_invert(mat A) {
+mat workaround_invert(mat A) {
   LDL_decompose(A);
   mat lowinv = ltinv(A);
-  return(lowinv * diagmat(vec(A.n_rows, fill::ones) / A.diag()) * lowinv.t());
+  return(lowinv.t() * diagmat(vec(A.n_rows, fill::ones) / A.diag()) * lowinv);
 }
 
