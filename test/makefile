@@ -7,4 +7,4 @@ $(OFILES): %.o: %.cpp
 testb: testb.o
 	c++ testb.o ../lib/linreg.o -larmadillo -o testb
 clean:
-	-rm $(OFILES) testa testb
+	-rm $(OFILES) testb
