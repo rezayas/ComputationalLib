@@ -1,4 +1,6 @@
 #include "linreg.hpp"
+#include "no_lapack_workaround.hpp"
+
 namespace linreg {
   using namespace arma;
   vec LinearRegression::runRegression(double lambda,
@@ -7,11 +9,11 @@ namespace linreg {
     xmat.unsafe_col(xs.n_cols).fill(1);
     xmat.head_cols(xs.n_cols) = xs;
     if(xmat.n_rows == xmat.n_cols)
-      return(solve(xmat, ys));
+      return(SOLVE(xmat, ys));
     mat w(ys.n_elem, ys.n_elem, fill::zeros);
     for(int i = ys.n_elem - 1, p = 1; i >= 0; i--, p /= lambda)
       w(i,i) = p;
-    return(solve(xmat.t() * w * xmat, xmat.t() * w * ys));
+    return(SOLVE(xmat.t() * w * xmat, xmat.t() * w * ys));
   }
   
   bool LinearRegression::updateCoefficients(const vec &x, double y) {
@@ -19,7 +21,7 @@ namespace linreg {
       xmat.row(--points).head(dim) = x.t();
       yvec(points) = y;
       if(!points) {
-	b = (xmat.t() * xmat).i();
+	b = INVERT(xmat.t() * xmat);
 	theta = runRegression(lambda, xmat.head_cols(dim), yvec);
       }
     } else {

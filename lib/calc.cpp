@@ -1,11 +1,13 @@
 #include <armadillo>
+#include "no_lapack_workaround.hpp"
+
 using namespace arma;
 vec thetaOLS(double lambda, mat x, vec y) {
   mat w(x.n_rows, x.n_rows, fill::zeros);
   double p;
   for(int i = x.n_rows - 1, p = 1; i >= 0; i--, p /= lambda)
     w(i, i) = p;
-  return(solve(x.t() * w * x, x.t() * w * y));
+  return(SOLVE(x.t() * w * x, x.t() * w * y));
 }
 
 vec theta;
@@ -34,7 +36,7 @@ bool updateTheta(double lambda, vec x, double y) {
     points++;
     if(points == dim) {
       ready = true;
-      b = (xmat.t() * xmat).i();
+      b = INVERT(xmat.t() * xmat);
       theta = thetaOLS(lambda, xmat, yvec);
       xmat.reset();
       yvec.reset();
