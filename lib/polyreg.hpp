@@ -3,14 +3,14 @@
 namespace linreg {
   class PolynomialRegression {
   public:
-    const arma::umat &exponents;
+    const Eigen::MatrixXi &exponents;
     PolynomialRegression(int order, int nvars);
-    const arma::vec &coefficients;
-    bool updateCoefficients(const arma::vec &x, double y);
-    arma::vec polynomial(const arma::vec &);
+    const vec &coefficients;
+    bool updateCoefficients(const vec &x, double y);
+    vec polynomial(const vec &);
   private:
     LinearRegression lin;
-    arma::umat pexp;
-    arma::vec pcoef;
+    Eigen::MatrixXi pexp;
+    vec pcoef;
   };
 }

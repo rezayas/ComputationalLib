@@ -5,6 +5,6 @@ all: testb
 $(OFILES): %.o: %.cpp
 	c++ -c -std=c++11 -I../lib $<
 testb: testb.o ../lib/linreg.o
-	c++ $^ -larmadillo -o testb
+	c++ $^ -o testb
 clean:
 	-rm $(OFILES) testb
