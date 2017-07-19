@@ -4,11 +4,11 @@
 
 namespace linreg {
   using namespace Eigen;
-  PolynomialRegression::PolynomialRegression(int order, int nvars)
+  PolynomialRegression::PolynomialRegression(int order, int nvars, double omega)
     : exponents(pexp), coefficients(pcoef),
       lin((int)boost::math::binomial_coefficient<double>(order + nvars,
-							   nvars) - 1) {
-    pexp.resize(lin.dim + 1, nvars);
+							 nvars), omega) {
+    pexp.resize(lin.dim, nvars);
     pcoef.resize(pexp.rows());
     // The algorithm here is as follows:
     // We keep track of the sum of the powers, S.
@@ -38,12 +38,10 @@ namespace linreg {
     }
   }
 
-  bool PolynomialRegression::updateCoefficients(const vec &x, double y) {
-    bool b = lin.updateCoefficients(polynomial(x).tail(lin.dim), y);
-    if(b) {
-      pcoef.tail(lin.dim) = lin.getCoefficients();
-      pcoef(0) = lin.getConstant();
-    }
+  bool PolynomialRegression::updateCoefficients(const vec &x, double y, double lambda) {
+    bool b = lin.updateCoefficients(polynomial(x), y, lambda);
+    if(b)
+      pcoef = lin.getCoefficients();
     return(b);
   }
   

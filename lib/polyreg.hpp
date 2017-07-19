@@ -4,9 +4,9 @@ namespace linreg {
   class PolynomialRegression {
   public:
     const Eigen::MatrixXi &exponents;
-    PolynomialRegression(int order, int nvars);
+    PolynomialRegression(int order, int nvars, double omega = 0);
     const vec &coefficients;
-    bool updateCoefficients(const vec &x, double y);
+    bool updateCoefficients(const vec &x, double y, double lambda = 1);
     vec polynomial(const vec &);
   private:
     LinearRegression lin;
