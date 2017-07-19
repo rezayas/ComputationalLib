@@ -1,0 +1,5 @@
+﻿  polyreg.cpp
+  linreg.cpp
+c:\users\ry87\box sync\codes\mycppresearchcodes\linearregressionlib\lib\linreg.cpp(17): warning C4244: '/=': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
+  LinearRegressionLib.vcxproj -> C:\Users\ry87\Box Sync\Codes\MyCppResearchCodes\LinearRegressionLib\LinearRegressionLib\Debug\LinearRegressionLib.lib
