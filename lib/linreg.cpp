@@ -25,6 +25,9 @@ namespace linreg {
       xmat.row(--points).head(dim) = x.transpose();
       yvec(points) = y;
       if(!points) {
+		  
+		  //TODO:  b = (xᵀx + omega.I)-1
+
 	// Translation: Use LDLT to construct the inverse.
 	b = (xmat.transpose() * xmat).ldlt().solve(mat::Identity(dim + 1, dim + 1));
 	theta = runRegression(lambda, xmat.leftCols(dim), yvec);
@@ -35,13 +38,13 @@ namespace linreg {
       xv(dim) = 1;
       // The .eval() function does nothing, but it prevents issues
       // due to modifying what we are using.
-      // γ = λ² + xᵀbx
+      // γ = λ + xᵀbx
       // θ' = θ + bx(y-θᵀx)/γ
-      // b' = (b - bxxᵀb/γ)/λ²
-      double gamma = lambda * lambda + (xv.transpose() * b * xv)(0,0);
+      // b' = (b - bxxᵀb/γ)/λ
+      double gamma = lambda  + (xv.transpose() * b * xv)(0,0);
       theta += (b * xv * (y - theta.transpose() * xv) / gamma).eval();
       b -= (b * xv * xv.transpose() * b / gamma).eval();
-      b /= lambda * lambda;
+      b /= lambda;
     }
     return(!points);
   }

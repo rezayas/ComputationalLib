@@ -23,4 +23,10 @@ int main() {
   cout << lr.getCoefficients() << endl;
   cout << lr.getConstant() << endl << endl;
   cout << linreg::LinearRegression::runRegression(xs, ys) << endl;
+
+  // Test 1: regular LS 
+  // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
+
+  // Test 3: LS + omega > 0 on a X matrix that is not full rank
+  // Test 4: updating algorithm with omega > 0 on a X matrix that is not full rank (same results as Test 3)
 }
