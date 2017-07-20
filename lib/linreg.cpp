@@ -30,13 +30,13 @@ namespace linreg {
       b(r,r) = 1;
       omega *= lambda;
       if(!points) {
-	// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
-	// w is the matrix that contains weighting.
-	// We never need both b and w, so we do it like this.
-	b = (xmat.transpose() * b * xmat
-	     + mat::Identity(xmat.rows(), xmat.rows()) * omega)
-	  .ldlt().solve(mat::Identity(dim, dim)).eval();
-	theta = b * yvec;
+		// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
+		// w is the matrix that contains weighting.
+		// We never need both b and w, so we do it like this.
+		b = (xmat.transpose() * b * xmat
+			 + mat::Identity(xmat.rows(), xmat.rows()) * omega)
+		  .ldlt().solve(mat::Identity(dim, dim)).eval();
+		theta = b * yvec;
       }
     } else {
       // The .eval() function does nothing, but it prevents issues

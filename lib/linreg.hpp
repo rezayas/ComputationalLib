@@ -20,19 +20,19 @@ namespace linreg {
     // θ = (X'WX + ωI)^-1 X'WY, where ω > 0 is the L2 regularization factor
     static vec runRegression(double, double, const mat &, const vec &);
     
-    // constructor to use the training algorithm to estimate coefficient
-    // ω ≥ 0 is the L2 regularization factor
+    // constructor to use the training algorithm to estimate coefficients.
+    // ω ≥ 0 is the L2 regularization factor.
     inline LinearRegression(int dim, double omeg = 0) : points(dim), dim(dim),
 							omega(omeg) {
       b.setIdentity(dim, dim);
       theta.setZero(dim);
       if(omega > 0) {
-	points = 0;
-	b /= omega;
-      } else {
-	xmat.setZero(dim, dim);
-	yvec.setZero(dim);
-      }
+		points = 0;
+		b /= omega;
+		  } else {
+		xmat.setZero(dim, dim);
+		yvec.setZero(dim);
+		  }
     }
 
     // update theta based on new x' and y using forgetting factor λ
