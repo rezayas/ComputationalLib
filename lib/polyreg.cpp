@@ -9,7 +9,7 @@ namespace linreg {
       lin((int)boost::math::binomial_coefficient<double>(order + nvars,
 							 nvars), omega) {
     pexp.resize(lin.dim, nvars);
-    pcoef.resize(pexp.rows());
+    pcoef.resize(lin.dim);
     // The algorithm here is as follows:
     // We keep track of the sum of the powers, S.
     // Then, if S < O (the order of our polynomial),
