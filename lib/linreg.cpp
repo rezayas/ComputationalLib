@@ -1,6 +1,7 @@
 #include "linreg.hpp"
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
+#include <iostream>
 
 namespace linreg {
   using namespace Eigen;
@@ -15,7 +16,7 @@ namespace linreg {
       w(i,i) = p;
     // (xᵀwx)⁻¹(xᵀwy)
     return((xs.transpose() * w * xs
-	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0,0))
+	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0,0) * lambda)
 	   .ldlt().solve(xs.transpose() * w * ys));
   }
   
@@ -25,14 +26,15 @@ namespace linreg {
       int r = dim - points--;
       xmat.row(r) = x.transpose();
       yvec(r) = y;
-      b *= lambda;
+      b.diagonal() *= lambda;
       b(r,r) = 1;
+      omega *= lambda;
       if(!points) {
 	// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
 	// w is the matrix that contains weighting.
 	// We never need both b and w, so we do it like this.
 	b = (xmat.transpose() * b * xmat
-	     + mat::Identity(xmat.rows(), xmat.rows()) * omega * b(0,0))
+	     + mat::Identity(xmat.rows(), xmat.rows()) * omega)
 	  .ldlt().solve(mat::Identity(dim, dim)).eval();
 	theta = b * yvec;
       }
