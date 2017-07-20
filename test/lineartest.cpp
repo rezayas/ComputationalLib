@@ -19,19 +19,19 @@ int main() {
   }
   ys += xs * xp;
   linreg::LinearRegression lr(3);
+  // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
   for(int i = 0; i < 1000; i++)
     lr.updateCoefficients(xs.row(i).transpose(), ys(i));
   cout << lr.getCoefficients() << endl << endl;
+  // Test 1: regular LS 
   cout << linreg::LinearRegression::runRegression(xs, ys) << endl << endl;
 
   linreg::LinearRegression lrb(3, .5);
+  // Test 4: updating algorithm with omega > 0 on a X matrix that is not full rank (same results as Test 3)
   for(int i = 0; i < 2; i++)
     lrb.updateCoefficients(xs.row(i).transpose(), ys(i));
   cout << lrb.getCoefficients() << endl << endl;
-  cout << linreg::LinearRegression::runRegression(1, .5, xs.topRows(2), ys.head(2)) << endl;
-  // Test 1: regular LS 
-  // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
-
   // Test 3: LS + omega > 0 on a X matrix that is not full rank
-  // Test 4: updating algorithm with omega > 0 on a X matrix that is not full rank (same results as Test 3)
+  cout << linreg::LinearRegression::runRegression(1, .5, xs.topRows(2), ys.head(2)) << endl;
+
 }

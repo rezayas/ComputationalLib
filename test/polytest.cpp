@@ -24,10 +24,10 @@ int main() {
   Eigen::MatrixXd gs(1000, 6);
   
   linreg::PolynomialRegression prf(2, 1);
-  linreg::PolynomialRegression prg(2,2);
+  linreg::PolynomialRegression prg(2, 2);
   for(int i = 0; i < 1000; i++) {
-    fs.row(i) = prf.polynomial(xs.row(i).head<1>()).transpose();
-    gs.row(i) = prg.polynomial(xs.row(i).transpose()).transpose();
+    fs.row(i) = prf.poly.expand(xs.row(i).head<1>()).transpose();
+    gs.row(i) = prg.poly.expand(xs.row(i).transpose()).transpose();
   }
   ys += fs * fp;
   zs += gs * gp;
@@ -37,8 +37,8 @@ int main() {
     prg.updateCoefficients(xs.row(i).transpose(), zs(i));
   }
 
-  cout << prf.coefficients << endl << endl;
+  cout << prf.poly.coefficients << endl << endl;
   cout << linreg::LinearRegression::runRegression(fs, ys) << endl << endl;
-  cout << prg.coefficients << endl << endl;
+  cout << prg.poly.coefficients << endl << endl;
   cout << linreg::LinearRegression::runRegression(gs, zs) << endl;
 }

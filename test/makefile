@@ -8,7 +8,7 @@ $(OFILES): %.o: %.cpp
 lineartest.o: ../lib/linreg.hpp
 lineartest: lineartest.o ../lib/linreg.o
 	c++ $^ -o lineartest
-polytest: polytest.o ../lib/linreg.o ../lib/polyreg.o
+polytest: polytest.o ../lib/linreg.o ../lib/polyreg.o ../lib/poly.o
 	c++ $^ -o polytest
 polytest.o: ../lib/polyreg.hpp
 clean:
