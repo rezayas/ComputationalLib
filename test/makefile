@@ -1,10 +1,10 @@
-CFILES = testb.cpp
-OFILES = testb.o
-all: testb
+CFILES = lineartest.cpp
+OFILES = lineartest.o
+all: lineartest
 .PHONY: all clean
 $(OFILES): %.o: %.cpp
 	c++ -c -std=c++11 -I../lib $<
-testb: testb.o ../lib/linreg.o
-	c++ $^ -o testb
+lineartest: lineartest.o ../lib/linreg.o
+	c++ $^ -o lineartest
 clean:
-	-rm $(OFILES) testb
+	-rm $(OFILES) lineartest
