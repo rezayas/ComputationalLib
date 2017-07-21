@@ -4,8 +4,6 @@
 
 namespace linreg {
   using namespace Eigen;
-
-
   bool PolynomialRegression::updateCoefficients(const vec &x, double y, double lambda) {
     bool b = lin.updateCoefficients(poly.expand(x), y, lambda);
     if(b)

@@ -1,5 +1,6 @@
 #include "poly.hpp"
 #include <boost/math/special_functions/binomial.hpp>
+#include "linreg.hpp"
 
 using namespace Eigen;
 namespace linreg {
@@ -73,5 +74,13 @@ namespace linreg {
       ans += ai;
     }
     return(ans);
-  } 
+  }
+  
+  void Polynomial::fitToData(const MatrixXd &xs, const VectorXd &ys,
+			     double lambda, double omega) {
+    MatrixXd longs(xs.rows(), monomials);
+    for(int i = xs.rows() - 1; i >= 0; i--)
+      longs.row(i) = expand(xs.row(i).transpose()).transpose();
+    coefficients = LinearRegression::runRegression(lambda, omega, longs, ys);
+  }
 }

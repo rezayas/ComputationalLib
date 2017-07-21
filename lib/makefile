@@ -7,5 +7,6 @@ $(OFILES): %.o: %.cpp %.hpp
 	c++ -c -std=c++11 $<
 polyreg.hpp: linreg.hpp poly.hpp
 	touch polyreg.hpp
+poly.o: linreg.hpp
 clean:
 	-rm $(OFILES)
