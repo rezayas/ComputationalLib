@@ -12,4 +12,4 @@ polytest: polytest.o ../lib/linreg.o ../lib/polyreg.o ../lib/poly.o
 	c++ $^ -o polytest
 polytest.o: ../lib/polyreg.hpp
 clean:
-	-rm $(OFILES) $(EFILES)
+	rm -f $(OFILES) $(EFILES)

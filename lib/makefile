@@ -9,4 +9,5 @@ polyreg.hpp: linreg.hpp poly.hpp
 	touch polyreg.hpp
 poly.o: linreg.hpp
 clean:
-	-rm $(OFILES)
+	rm -f $(OFILES)
+.PRECIOUS: polyreg.hpp
