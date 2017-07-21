@@ -1,7 +1,6 @@
 #include "linreg.hpp"
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
-#include <iostream>
 
 namespace linreg {
   using namespace Eigen;
@@ -22,22 +21,34 @@ namespace linreg {
   
   bool LinearRegression::updateCoefficients(const vec &x, double y,
 					    double lambda) {
-    if(points) {
-      int r = dim - points--;
-      xmat.row(r) = x.transpose();
-      yvec(r) = y;
-      b.diagonal() *= lambda;
-      b(r,r) = 1;
+    if(!ready) {
+      if(points == xmat.rows()) {
+	xmat.conservativeResize(points * 2, NoChange);
+	yvec.conservativeResize(points * 2);
+	wvec.conservativeResize(points * 2);
+	wvec.tail(points).setZero();
+	yvec.tail(points).setZero();
+	xmat.bottomRows(points).setZero();
+      }
+      xmat.row(points) = x.transpose();
+      yvec(points) = y;
+      wvec.head(points) *= lambda;
+      wvec(points) = 1;
       omega *= lambda;
-      if(!points) {
+      if(points >= dim) {
 		// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
 		// w is the matrix that contains weighting.
-		// We never need both b and w, so we do it like this.
-		b = (xmat.transpose() * b * xmat
-			 + mat::Identity(xmat.rows(), xmat.rows()) * omega)
-		  .ldlt().solve(mat::Identity(dim, dim)).eval();
-		theta = b * yvec;
+	auto c = (xmat.transpose() * wvec.asDiagonal() * xmat
+		  + mat::Identity(dim, dim) * omega).ldlt();
+	if(c.rcond() > .0001) {
+	  b = c.solve(mat::Identity(dim, dim));
+	  theta = b * xmat.transpose() * wvec.asDiagonal() * yvec;
+	  xmat.resize(0,0);
+	  yvec.resize(0);
+	  ready = true;
+	}
       }
+      points++;
     } else {
       // The .eval() function does nothing, but it prevents issues
       // due to modifying what we are using.
@@ -49,6 +60,6 @@ namespace linreg {
       b -= (b * x * x.transpose() * b / gamma).eval();
       b /= lambda;
     }
-    return(!points);
+    return(ready);
   }
 }

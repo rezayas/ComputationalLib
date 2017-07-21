@@ -13,13 +13,13 @@ int main() {
   Eigen::Vector3d xp(1, 2, 3); // fitting y = 1 + 2x1 + 3x3 
   Eigen::MatrixX3d xs(1000, 3); // X matrix
   Eigen::VectorXd ys(1000);	// y vector
-
+  Eigen::VectorXd zs(1000);
   // populate X matrix and y vector
   for(int i = 0; i < 1000; i++) {
     xs(i,0) = 1;
     xs(i,1) = norm(rands);
     xs(i,2) = norm(rands);
-    ys(i) = uni(rands);
+    ys(i) = zs(i) = uni(rands);
   }
   ys += xs * xp; 
 
@@ -27,18 +27,21 @@ int main() {
   cout << linreg::LinearRegression::runRegression(xs, ys) << endl << endl;
 
   // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
-  linreg::LinearRegression lr(3); 
+  linreg::LinearRegression lr(3);
   for(int i = 0; i < 1000; i++)
     lr.updateCoefficients(xs.row(i).transpose(), ys(i));
   cout << lr.getCoefficients() << endl << endl;
+
+  xs.col(2) = xs.col(1) * 2;
+  zs += xs * Eigen::Vector3d(2, 3, 4);
   
   // Test 3: LS + omega > 0 on a X matrix that is not full rank
   linreg::LinearRegression lrb(3, .5);
-  cout << linreg::LinearRegression::runRegression(1, .5, xs.topRows(2), ys.head(2)) << endl << endl;
+  cout << linreg::LinearRegression::runRegression(1, .5, xs, zs) << endl << endl;
   
   // Test 4: updating algorithm with omega > 0 on a X matrix that is not full rank (same results as Test 3)
-  for(int i = 0; i < 2; i++)
-    lrb.updateCoefficients(xs.row(i).transpose(), ys(i));
+  for(int i = 0; i < 1000; i++)
+    lrb.updateCoefficients(xs.row(i).transpose(), zs(i));
   cout << lrb.getCoefficients() << endl ;
   
 

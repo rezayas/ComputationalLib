@@ -22,22 +22,22 @@ namespace linreg {
     
     // constructor to use the training algorithm to estimate coefficients.
     // ω ≥ 0 is the L2 regularization factor.
-    inline LinearRegression(int dim, double omeg = 0) : points(dim), dim(dim),
+    inline LinearRegression(int dim, double omeg = 0) : points(0), dim(dim),
 							omega(omeg) {
-      b.setIdentity(dim, dim);
       theta.setZero(dim);
       if(omega > 0) {
-		points = 0;
-		b /= omega;
-		  } else {
-		xmat.setZero(dim, dim);
-		yvec.setZero(dim);
-		  }
+	ready = true;
+	b = Eigen::MatrixXd::Identity(dim, dim) / omega;
+      } else {
+	xmat.setZero(dim, dim);
+	yvec.setZero(dim);
+	wvec.setZero(dim);
+      }
     }
-
+    
     // update theta based on new x' and y using forgetting factor λ
     bool updateCoefficients(const vec &, double, double = 1);
-
+    
     // get θ
     inline const vec &getCoefficients() const {
       return(theta);
@@ -47,8 +47,9 @@ namespace linreg {
 
   private:
     double omega; // L2 regularization factor
-    vec theta, yvec;
+    vec theta, yvec, wvec;
     mat b, xmat;
     int points;
+    bool ready;
   };
 }
