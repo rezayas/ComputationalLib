@@ -19,6 +19,22 @@ namespace linreg {
 	   .ldlt().solve(xs.transpose() * w * ys));
   }
   
+  void LinearRegression::reset(int idim, double iomega) {
+    points = 0;
+    pdim = idim;
+    omega = iomega;
+    theta.setZero(dim);
+    if(omega > 0) {
+      ready = true;
+      b = Eigen::MatrixXd::Identity(dim, dim) / omega;
+    } else {
+      xmat.setZero(dim, dim);
+      yvec.setZero(dim);
+      wvec.setZero(dim);
+    }
+  }
+
+  
   bool LinearRegression::updateCoefficients(const vec &x, double y,
 					    double lambda) {
     if(!ready) {
