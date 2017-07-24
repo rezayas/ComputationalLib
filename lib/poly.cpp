@@ -83,4 +83,33 @@ namespace linreg {
       longs.row(i) = expand(xs.row(i).transpose()).transpose();
     coefficients = LinearRegression::runRegression(lambda, omega, longs, ys);
   }
+
+  std::tuple<MatrixXd, VectorXd, double> Polynomial::quaddec() const {
+    MatrixXd g = MatrixXd::Zero(variables, variables);
+    VectorXd v = VectorXd::Zero(variables, variables);
+    double d = 0;
+    for(int i = 0; i < monomials; i++) {
+      int v1 = -1, v2 = -1, order = 0;
+      for(int j = 0; j < variables && order <= 2; j++) {
+	char c = exponents(i, j);
+	order += c;
+	if(c == 1) {
+	  if(v1 < 0)
+	    v1 = j;
+	  else
+	    v2 = j;
+	} else if(c == 2)
+	  v1 = v2 = j;
+      }
+      if(order == 0)
+	d += coefficients(i);
+      else if(order == 1)
+	v(v1) += coefficients(i);
+      else if(order == 2) {
+	g(v1, v2) += coefficients(i);
+	g(v2, v1) += coefficients(i);
+      }
+    }
+    return(std::make_tuple(g, v, d));
+  }
 }

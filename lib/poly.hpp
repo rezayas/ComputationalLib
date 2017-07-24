@@ -1,5 +1,6 @@
 #pragma once
 #include <Eigen/Core>
+#include <tuple>
 
 namespace linreg {
   class Polynomial {
@@ -15,6 +16,9 @@ namespace linreg {
     Eigen::VectorXd expand(const Eigen::VectorXd &) const;
     void fitToData(const Eigen::MatrixXd &, const Eigen::VectorXd &,
 		   double = 1, double = 0);
+    // Returns (g, v, c) such that f(x) = xᵀgx/2 + xᵀv + c,
+    // plus possibly terms that are third-order or higher in x.
+    std::tuple<Eigen::MatrixXd, Eigen::VectorXd, double> quaddec() const;
     const int variables, monomials;
   private:
     Eigen::MatrixXi exps;
