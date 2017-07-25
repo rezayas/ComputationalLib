@@ -24,10 +24,9 @@ namespace linreg {
     pdim = idim;
     omega = iomega;
     theta.setZero(dim);
-    if(omega > 0) {
-      ready = true;
+    if((ready = omega > 0))
       b = Eigen::MatrixXd::Identity(dim, dim) / omega;
-    } else {
+    else {
       xmat.setZero(dim, dim);
       yvec.setZero(dim);
       wvec.setZero(dim);
