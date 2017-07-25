@@ -6,14 +6,14 @@ namespace linreg {
   using namespace Eigen;
   vec LinearRegression::runRegression(double lambda, double omega,
 				      const mat &xs, const vec &ys) {
-    // If x is square, then it turns out we might as well
-    // do x⁻¹y
-    if(xs.rows() == xs.cols() && omega != 0)
+    // If x is square and ω = 0, then it turns out we might as well
+    // do x⁻¹y (because (xᵀwx)⁻¹(xᵀwy) = x⁻¹w⁻¹xᵀ⁻¹xᵀwy = x⁻¹w⁻¹wy = x⁻¹y)
+    if(xs.rows() == xs.cols() && omega == 0)
       return(xs.fullPivLu().solve(ys));
     mat w = mat::Zero(ys.size(), ys.size());
     for(int i = ys.size() - 1, p = 1; i >= 0; i--, p /= lambda)
       w(i,i) = p;
-    // (xᵀwx)⁻¹(xᵀwy)
+    // (xᵀwx + ωI)⁻¹(xᵀwy)
     return((xs.transpose() * w * xs
 	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0,0) * lambda)
 	   .ldlt().solve(xs.transpose() * w * ys));
@@ -38,6 +38,8 @@ namespace linreg {
 					    double lambda) {
     if(!ready) {
       if(points == xmat.rows()) {
+	// If we're out of room, double the space
+	// (this is the right thing to do)
 	xmat.conservativeResize(points * 2, NoChange);
 	yvec.conservativeResize(points * 2);
 	wvec.conservativeResize(points * 2);
@@ -45,21 +47,30 @@ namespace linreg {
 	yvec.tail(points).setZero();
 	xmat.bottomRows(points).setZero();
       }
+      // Insert the new x and y in our list
       xmat.row(points) = x.transpose();
       yvec(points) = y;
+      // Decrease the early weights by a factor of lambda
       wvec.head(points) *= lambda;
+      // And set this point's weight to 1.
       wvec(points) = 1;
+      // (ω is like point 0)
       omega *= lambda;
+      // If we have too few points, why bother checking if we can invert?
       if(points >= dim) {
 		// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
 		// w is the matrix that contains weighting.
 	auto c = (xmat.transpose() * wvec.asDiagonal() * xmat
 		  + mat::Identity(dim, dim) * omega).ldlt();
 	if(c.rcond() > .0001) {
+	  // If our matrix isn't almost singular, we now set b and θ.
 	  b = c.solve(mat::Identity(dim, dim));
-	  theta = b * xmat.transpose() * wvec.asDiagonal() * yvec;
+	  // (θ = bxᵀwy)
+	  theta = c.solve(xmat.transpose() * wvec.cwiseProduct(yvec));
+	  // We won't need these anymore.
 	  xmat.resize(0,0);
 	  yvec.resize(0);
+	  wvec.resize(0);
 	  ready = true;
 	}
       }

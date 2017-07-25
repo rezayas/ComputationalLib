@@ -27,7 +27,7 @@ int main() {
 
   linreg::PolynomialRegression prf(f);
   linreg::PolynomialRegression prg(g);
-  
+
   for(int i = 0; i < 1000; i++) {
     ys(i) += f.evaluate(xs.row(i).head<1>());
     zs(i) += g.evaluate(xs.row(i).transpose());
@@ -39,7 +39,7 @@ int main() {
   }
 
   f.fitToData(xs.col(0), ys);
-  g.fitToData(xs, ys);
+  g.fitToData(xs, zs);
 
   cout << prf.poly.coefficients << endl << endl;
   cout << f.coefficients << endl << endl;

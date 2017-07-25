@@ -60,7 +60,7 @@ namespace linreg {
   double Polynomial::evaluate(const VectorXd &x) const {
     double ans;
     for(int i = 0; i < monomials; i++) {
-      double ai = 1;
+      double ai = coefficients(i);
       for(int j = 0; j < variables; j++) {
 	unsigned v = exps(i, j);
 	double d = x(j);

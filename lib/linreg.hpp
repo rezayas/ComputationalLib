@@ -20,6 +20,8 @@ namespace linreg {
     // θ = (X'WX + ωI)^-1 X'WY, where ω > 0 is the L2 regularization factor
     static vec runRegression(double, double, const mat &, const vec &);
 
+    // Resets, so you can run a new linear regression.
+    // Takes the dimension, and the new omega.
     void reset(int, double = 0);
     
     // constructor to use the training algorithm to estimate coefficients.
