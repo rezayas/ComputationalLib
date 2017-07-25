@@ -36,7 +36,7 @@ int main() {
   // Test 3: LS + omega > 0 on a X matrix that is not full rank
   // fiting y = 2 + 3x1 + 4x3 where x2 is always 2*x1
   xs.col(2) = xs.col(1) * 2;
-  zs += xs * Eigen::Vector3d(2, 3, 4)  
+  zs += xs * Eigen::Vector3d(2, 3, 4);
   
   linreg::LinearRegression lrb(3, .5);
   cout << linreg::LinearRegression::runRegression(1, .5, xs, zs) << endl << endl;
