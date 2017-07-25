@@ -5,9 +5,9 @@
 namespace linreg {
   using namespace Eigen;
   bool PolynomialRegression::updateCoefficients(const vec &x, double y, double lambda) {
-    bool b = lin.updateCoefficients(poly.expand(x), y, lambda);
+    bool b = plin.updateCoefficients(poly.expand(x), y, lambda);
     if(b)
-      ppoly.coefficients = lin.getCoefficients();
+      ppoly.coefficients = plin.getCoefficients();
     return(b);
   }
 }

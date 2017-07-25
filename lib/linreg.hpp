@@ -37,6 +37,9 @@ namespace linreg {
     }
 
     const int &dim; // mumber of columns of X
+    inline const mat &getB() const {
+      return(b);
+    }
 
   private:
     double omega; // L2 regularization factor

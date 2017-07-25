@@ -7,11 +7,12 @@ namespace linreg {
     inline PolynomialRegression(int order, int nvars, double omega = 0) :
       PolynomialRegression(Polynomial(order, nvars), omega) {}
     inline PolynomialRegression(const Polynomial &p, double omega = 0) :
-      lin(p.monomials), ppoly(p), poly(ppoly) {}
+      plin(p.monomials), ppoly(p), lin(plin), poly(ppoly) {}
     const Polynomial &poly;
+    const LinearRegression &lin;
     bool updateCoefficients(const vec &x, double y, double lambda = 1);
   private:
-    LinearRegression lin;
+    LinearRegression plin;
     Polynomial ppoly;
   };
 }

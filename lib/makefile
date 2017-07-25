@@ -1,6 +1,6 @@
-OFILES = linreg.o polyreg.o poly.o
-HFILES = linreg.hpp polyreg.hpp poly.hpp
-CFILES = linreg.cpp polyreg.cpp poly.cpp
+OFILES = linreg.o polyreg.o poly.o qp.o
+HFILES = linreg.hpp polyreg.hpp poly.hpp qp.hpp
+CFILES = linreg.cpp polyreg.cpp poly.cpp qp.cpp
 all: $(OFILES)
 .PHONY: all clean
 $(OFILES): %.o: %.cpp %.hpp
