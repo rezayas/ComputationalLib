@@ -88,36 +88,40 @@ namespace linreg {
 		      const MatrixXd &CE, const VectorXd &ce0,  
 		      const MatrixXd &CI, const VectorXd &ci0, 
 		      VectorXd &x) {
-    unsigned n = B.cols(), p = CE.cols(), m = CI.cols(), l;
+    unsigned n = B.cols(), p = ce0.size(), m = ci0.size(), l;
     if(B.rows() != B.cols()) {
       std::ostringstream msg;
       msg << "The matrix B is not square (" << B.rows()
 	  << 'x' << B.cols() << ')';
       throw std::logic_error(msg.str());
     }
-    if(CE.rows() != B.rows()) {
-      std::ostringstream msg;
-      msg << "The matrix CE is incompatible (number of rows: " 
-	  << CE.rows() << "; expecting: " << B.rows() << ')';
-      throw std::logic_error(msg.str());
+    if(p) {
+      if(CE.rows() != B.rows()) {
+	std::ostringstream msg;
+	msg << "The matrix CE is incompatible (number of rows: " 
+	    << CE.rows() << "; expecting: " << B.rows() << ')';
+	throw std::logic_error(msg.str());
+      }
+      if(p != CE.cols()) {
+	std::ostringstream msg;
+	msg << "The vector ce0 is incompatible (size: " 
+	    << ce0.size() << "; expecting: " << CE.cols() << ')';
+	throw std::logic_error(msg.str());
+      }
     }
-    if(ce0.size() != CE.cols()) {
-      std::ostringstream msg;
-      msg << "The vector ce0 is incompatible (size: " 
-	  << ce0.size() << "; expecting: " << CE.cols() << ')';
-      throw std::logic_error(msg.str());
-    }
-    if(CI.rows() != B.rows()) {
-      std::ostringstream msg;
-      msg << "The matrix CI is incompatible (number of rows: " 
-	  << CI.rows() << "; expecting: " << B.rows() << ')';
-      throw std::logic_error(msg.str());
-    }
-    if(ci0.size() != CI.cols()) {
-      std::ostringstream msg;
-      msg << "The vector ci0 is incompatible (size: " 
-	  << ci0.size() << "; expecting: " << CI.cols() << ')';
-      throw std::logic_error(msg.str());
+    if(m) {
+      if(CI.rows() != B.rows()) {
+	std::ostringstream msg;
+	msg << "The matrix CI is incompatible (number of rows: " 
+	    << CI.rows() << "; expecting: " << B.rows() << ')';
+	throw std::logic_error(msg.str());
+      }
+      if(ci0.size() != CI.cols()) {
+	std::ostringstream msg;
+	msg << "The vector ci0 is incompatible (size: " 
+	    << ci0.size() << "; expecting: " << CI.cols() << ')';
+	throw std::logic_error(msg.str());
+      }
     }
     
     if(x.size() != n)
@@ -126,7 +130,7 @@ namespace linreg {
     int ip; // this is the index of the constraint to be added to the active set
     MatrixXd R = MatrixXd::Zero(n, n), J = B;
     VectorXd s(m + p), z(n), r(m + p), d(n), np(n), u(m + p), x_old(n), u_old(m + p);
-    double psi, c1, c2, sum, ss, R_norm;
+    double psi, c1, c2, ss, R_norm;
     double t, t1, t2; /* t is the step lenght, which is the minimum of the partial step length t1 and the full step length t2 */
     VectorXi A(m + p), A_old(m + p), iai(m + p);
     unsigned q, iq;
@@ -172,10 +176,8 @@ namespace linreg {
     
     while(true) {
       /* step 1: choose a violated constraint */
-      for (unsigned i = p; i < iq; i++) {
-	ip = A(i);
-	iai(ip) = -1;
-      }
+      for (unsigned i = p; i < iq; i++)
+	iai(A(i)) = -1;
       
       /* compute s(x) = ci^T * x + ci0 for all elements of K \ A */
       ss = 0.0;
@@ -183,11 +185,8 @@ namespace linreg {
       ip = 0; /* ip will be the index of the chosen violated constraint */
       for(unsigned i = 0; i < m; i++) {
 	iaexcl[i] = true;
-	sum = 0.0;
-	sum += CI.col(i).dot(x);
-	sum += ci0(i);
-	s(i) = sum;
-	psi += std::min(0.0, sum);
+	s(i) = CI.col(i).dot(x) + ci0(i);
+	psi += std::min(0.0, s(i));
       }
       if (fabs(psi) <= m * EPSILON * c1 * c2 * 100.0)
 	/* numerically there are not infeasibilities anymore */
