@@ -86,7 +86,7 @@ namespace linreg {
 
   std::tuple<MatrixXd, VectorXd, double> Polynomial::quaddec() const {
     MatrixXd g = MatrixXd::Zero(variables, variables);
-    VectorXd v = VectorXd::Zero(variables, variables);
+    VectorXd v = VectorXd::Zero(variables);
     double d = 0;
     for(int i = 0; i < monomials; i++) {
       int v1 = -1, v2 = -1, order = 0;
