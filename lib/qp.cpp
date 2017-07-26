@@ -116,7 +116,7 @@ namespace linreg {
 	    << CI.rows() << "; expecting: " << B.rows() << ')';
 	throw std::logic_error(msg.str());
       }
-      if(ci0.size() != CI.cols()) {
+      if(m != CI.cols()) {
 	std::ostringstream msg;
 	msg << "The vector ci0 is incompatible (size: " 
 	    << ci0.size() << "; expecting: " << CI.cols() << ')';
@@ -406,5 +406,34 @@ namespace linreg {
       }
     }
   }
+
+  std::pair<MatrixXd, VectorXd> makeBoxConstraints(VectorXd &mins,
+						   VectorXd &maxes) {
+    int i;
+    for(int j = 0; j < mins.size(); j++) {
+      if(maxes(j) < INFINITY)
+	i++;
+      if(mins(j) > -INFINITY)
+	i++;
+    }
+
+    MatrixXd ci(mins.size(), i);
+    VectorXd ci0(i);
+    
+    for(int j = 0; j < mins.size(); j++) {
+      if(mins(j) > -INFINITY) {
+	ci.col(--i).setZero();
+	ci(j, i) = 1;
+	ci0(i) = -mins(j);
+      }
+      if(maxes(j) < INFINITY) {
+	ci.col(--i).setZero();
+	ci(j, i) = -1;
+	ci0(i) = maxes(j);
+      }
+    }
+    return(std::make_pair(ci, ci0));
+  }
+    
   
 }

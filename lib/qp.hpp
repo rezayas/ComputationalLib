@@ -71,11 +71,14 @@ along with QuadProg++. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <Eigen/Core>
+#include <utility>
 namespace linreg {
 
   using namespace Eigen;
-  bool solve_quadprog(const MatrixXd &B, const VectorXd &theta, 
+  extern bool solve_quadprog(const MatrixXd &B, const VectorXd &theta, 
 		      const MatrixXd &CE, const VectorXd &ce0,  
 		      const MatrixXd &CI, const VectorXd &ci0, 
 		      VectorXd &x);
+  extern std::pair<MatrixXd, VectorXd> makeBoxConstraints(VectorXd mins,
+						   VectorXd maxes);
 }
