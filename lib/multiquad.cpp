@@ -35,8 +35,8 @@ namespace linreg {
       return(getQRix(((x - lows).array() / stps.array()).cast<int>()));
     } catch(const std::out_of_range &e) {
       int i;
-      for(i = 0; x(i) > lows(i)
-	    && x(i) < stps(i) * brackets(i) + lows(i); i++);
+      for(i = 0; !brackets(i) ||
+	    (x(i) > lows(i) && x(i) < stps(i) * brackets(i) + lows(i)); i++);
       std::ostringstream msg;
       msg << "Coordinate " << i << "(value: " << x(i) << ") is too ";
       if(x(i) < lows(i))
