@@ -5,13 +5,20 @@
 namespace linreg {
   class Multiquad {
   public:
-    inline Multiquad(vec lows, vec highs,
-		     Eigen::VectorXi brackets, double omega = 0)
+    inline Multiquad(const vec &lows, const vec &highs,
+		     const Eigen::VectorXi &brackets, double omega = 0)
       : lows(lows), brackets(brackets),
-	steps((highs - lows).array() / brackets.cast<double>().array()),
-	lrs(brackets.prod(), PolynomialRegression(2, lows.size(), omega)) {}
+	stps((highs - lows).array() / brackets.cast<double>().array()),
+	lrs(brackets.prod(), PolynomialRegression(2, lows.size(), omega)) {
+      for(int i = 0; i < lows.size(); i++)
+	if(stps(i) != stps(i))
+	  stps(i) = INFINITY;
+    }
 
-    const vec lows, steps;
+    const vec lows;
+    inline const vec &steps() const {
+      return(stps);
+    }
     const Eigen::VectorXi brackets;
     void addDataPoint(const vec &x, double y, double lambda = 1);
     // Get by indices
@@ -20,5 +27,6 @@ namespace linreg {
     const PolynomialRegression &getQR(const Eigen::VectorXd &) const;
   private:
     std::vector<PolynomialRegression> lrs;
+    vec stps;
   };
 }
