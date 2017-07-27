@@ -35,6 +35,7 @@
 #include <stdexcept>
 #include "qp.hpp"
 #include <vector>
+#include <sstream>
 
 #ifndef EPSILON
 #define EPSILON .0000000000000002220446049250313080847263336181640625

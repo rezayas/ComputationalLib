@@ -23,10 +23,10 @@ namespace linreg {
     // Resets, so you can run a new linear regression.
     // Takes the dimension, and the new omega.
     void reset(int, double = 0);
-    
+
     // constructor to use the training algorithm to estimate coefficients.
     // ω ≥ 0 is the L2 regularization factor.
-    inline LinearRegression(int idim, double omega = 0) : dim(pdim) {
+    inline LinearRegression(int idim, double omega = 0) {
       reset(idim, omega);
     }
     
@@ -38,7 +38,10 @@ namespace linreg {
       return(theta);
     }
 
-    const int &dim; // mumber of columns of X
+    inline int dim() const {
+      return(pdim);
+    }
+    
     inline const mat &getB() const {
       return(b);
     }

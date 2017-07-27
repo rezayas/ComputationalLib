@@ -45,8 +45,8 @@ int main() {
 
   /* Print out (first two should be about 1,2,3;
      last two should be 1,2,3,4,5,6 or so.) */
-  cout << prf.poly.coefficients << endl << endl;
+  cout << prf.poly().coefficients << endl << endl;
   cout << f.coefficients << endl << endl;
-  cout << prg.poly.coefficients << endl << endl;
+  cout << prg.poly().coefficients << endl << endl;
   cout << g.coefficients << endl;
 }

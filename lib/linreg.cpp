@@ -23,13 +23,13 @@ namespace linreg {
     points = 0;
     pdim = idim;
     omega = iomega;
-    theta.setZero(dim);
+    theta.setZero(idim);
     if((ready = omega > 0))
-      b = Eigen::MatrixXd::Identity(dim, dim) / omega;
+      b = Eigen::MatrixXd::Identity(idim, idim) / omega;
     else {
-      xmat.setZero(dim, dim);
-      yvec.setZero(dim);
-      wvec.setZero(dim);
+      xmat.setZero(idim, idim);
+      yvec.setZero(idim);
+      wvec.setZero(idim);
     }
   }
 
@@ -57,14 +57,14 @@ namespace linreg {
       // (ω is like point 0)
       omega *= lambda;
       // If we have too few points, why bother checking if we can invert?
-      if(points >= dim) {
+      if(points >= pdim) {
 		// b = (xᵀwx + ωIλⁿ)⁻¹, where n is the number of xs so far.
 		// w is the matrix that contains weighting.
 	auto c = (xmat.transpose() * wvec.asDiagonal() * xmat
-		  + mat::Identity(dim, dim) * omega).ldlt();
+		  + mat::Identity(pdim, pdim) * omega).ldlt();
 	if(c.rcond() > .0001) {
 	  // If our matrix isn't almost singular, we now set b and θ.
-	  b = c.solve(mat::Identity(dim, dim));
+	  b = c.solve(mat::Identity(pdim, pdim));
 	  // (θ = bxᵀwy)
 	  theta = c.solve(xmat.transpose() * wvec.cwiseProduct(yvec));
 	  // We won't need these anymore.

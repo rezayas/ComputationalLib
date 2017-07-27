@@ -7,7 +7,7 @@ namespace linreg {
   Polynomial::Polynomial(int order, int nvars) :
     monomials((int)boost::math::binomial_coefficient<double>(order + nvars,
 							     nvars)),
-    variables(nvars), exponents(exps) {
+    variables(nvars) {
     coefficients = VectorXd::Zero(monomials);
     exps.resize(monomials, nvars);
     // The algorithm here is as follows:
@@ -91,7 +91,7 @@ namespace linreg {
     for(int i = 0; i < monomials; i++) {
       int v1 = -1, v2 = -1, order = 0;
       for(int j = 0; j < variables && order <= 2; j++) {
-	char c = exponents(i, j);
+	char c = exps(i, j);
 	order += c;
 	if(c == 1) {
 	  if(v1 < 0)

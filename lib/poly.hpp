@@ -5,11 +5,13 @@
 namespace linreg {
   class Polynomial {
   public:
-    const Eigen::MatrixXi &exponents;
+    inline const Eigen::MatrixXi &exponents() const {
+      return(exps);
+    }
     Eigen::VectorXd coefficients;
     Polynomial(int order, int nvars);
     inline Polynomial(const Eigen::MatrixXi &exs, const Eigen::VectorXd &coes)
-      : exps(exs), exponents(exps), coefficients(coes), variables(exs.cols()),
+      : exps(exs), coefficients(coes), variables(exs.cols()),
 	monomials(exs.rows()) {}
     double evaluate(const Eigen::VectorXd &) const;
     // Returns the products in the proper order.
