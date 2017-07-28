@@ -44,7 +44,7 @@
 using namespace Eigen;
 using std::vector;
 
-namespace linreg {
+namespace complib {
 
   // Utility functions for updating some data needed by the solution method
   inline void update_r(const MatrixXd &R, VectorXd &r,

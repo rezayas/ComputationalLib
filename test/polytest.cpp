@@ -18,15 +18,15 @@ int main() {
     zs(i) = uni(rands);
   }
 
-  linreg::Polynomial f(Eigen::VectorXi::LinSpaced(3, 0, 2),
+  complib::Polynomial f(Eigen::VectorXi::LinSpaced(3, 0, 2),
 		       Eigen::VectorXd::LinSpaced(3, 1, 3));
 
-  linreg::Polynomial g((Eigen::MatrixX2i(6,2) << 0,0, 1,0, 0,1,
+  complib::Polynomial g((Eigen::MatrixX2i(6,2) << 0,0, 1,0, 0,1,
 			1,1, 2,0, 0,2).finished(),
 		       Eigen::VectorXd::LinSpaced(6, 1, 6));
 
-  linreg::PolynomialRegression prf(f);
-  linreg::PolynomialRegression prg(g);
+  complib::PolynomialRegression prf(f);
+  complib::PolynomialRegression prg(g);
 
   for(int i = 0; i < 1000; i++) {
     ys(i) += f.evaluate(xs.row(i).head<1>());

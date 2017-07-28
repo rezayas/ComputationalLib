@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 
-namespace linreg {
+namespace complib {
   typedef Eigen::MatrixXd mat;
   typedef Eigen::VectorXd vec;
   class LinearRegression {

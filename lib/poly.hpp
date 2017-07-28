@@ -2,7 +2,7 @@
 #include <Eigen/Core>
 #include <tuple>
 
-namespace linreg {
+namespace complib {
   class Polynomial {
   public:
     inline const Eigen::MatrixXi &exponents() const {

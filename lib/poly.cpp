@@ -3,7 +3,7 @@
 #include "linreg.hpp"
 
 using namespace Eigen;
-namespace linreg {
+namespace complib {
   Polynomial::Polynomial(int order, int nvars) :
     monomials((int)boost::math::binomial_coefficient<double>(order + nvars,
 							     nvars)),

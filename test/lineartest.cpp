@@ -24,10 +24,10 @@ int main() {
   ys += xs * xp;
 
   // Test 1: regular LS 
-  cout << linreg::LinearRegression::runRegression(xs, ys) << endl << endl;
+  cout << complib::LinearRegression::runRegression(xs, ys) << endl << endl;
 
   // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
-  linreg::LinearRegression lr(3);
+  complib::LinearRegression lr(3);
   for(int i = 0; i < 1000; i++)
     lr.updateCoefficients(xs.row(i).transpose(), ys(i));
   cout << lr.getCoefficients() << endl << endl;
@@ -38,8 +38,8 @@ int main() {
   xs.col(2) = xs.col(1) * 2;
   zs += xs * Eigen::Vector3d(2, 3, 4);
   
-  linreg::LinearRegression lrb(3, .5);
-  cout << linreg::LinearRegression::runRegression(1, .5, xs, zs) << endl << endl;
+  complib::LinearRegression lrb(3, .5);
+  cout << complib::LinearRegression::runRegression(1, .5, xs, zs) << endl << endl;
   
   // Test 4: updating algorithm with omega > 0 on a X matrix that is not full rank (same results as Test 3)
   for(int i = 0; i < 1000; i++)

@@ -1,7 +1,7 @@
 #include "linreg.hpp"
 #include "poly.hpp"
 
-namespace linreg {
+namespace complib {
   class PolynomialRegression {
   public:
     inline PolynomialRegression(int order, int nvars, double omega = 0) :

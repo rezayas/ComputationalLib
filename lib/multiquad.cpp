@@ -1,7 +1,7 @@
 #include "multiquad.hpp"
 #include <stdexcept>
 
-namespace linreg {
+namespace complib {
   void Multiquad::addDataPoint(const vec &x, double y, double lambda) {
     // Basically, for each i,
     // test if brackets(i) is 0 (in which case it's fine),
