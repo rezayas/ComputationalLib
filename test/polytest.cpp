@@ -34,12 +34,16 @@ int main() {
   }
 
   // Estimate with the online algorithm.
+  // First line is estimating the parameters of f(x) = 1 + 2x + 3x^2.
+  // Second is g(x) = 1 + 2x + 3y + 4xy + 5x^2 + 6y^2.
   for(int i = 0; i < 1000; i++) {
     prf.updateCoefficients(xs.row(i).head<1>(), ys(i));
     prg.updateCoefficients(xs.row(i).transpose(), zs(i));
   }
 
-  // Estimate with the offline algorithm
+  // Estimate with the offline algorithm.
+  // First line is estimating the parameters of f(x) = 1 + 2x + 3x^2.
+  // Second is g(x) = 1 + 2x + 3y + 4xy + 5x^2 + 6y^2.
   f.fitToData(xs.col(0), ys);
   g.fitToData(xs, zs);
 

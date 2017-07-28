@@ -11,6 +11,7 @@ namespace complib {
     Eigen::VectorXd coefficients;
     // Returns the zero polynomial with space to be any polynomial of
     // the proper order on that many variables.
+    // You can later edit the coefficients.
     Polynomial(int order, int nvars);
     // Let m be the number of rows in exs and coes.
     // Let n be the number of columns in exs.
@@ -20,6 +21,9 @@ namespace complib {
     // then setting exs to [0, 1, 2]ᵀ and coes to [a, b, c]ᵀ
     // works quite well.
     // Permuting the rows of both does not change the polynomial.
+    // If we want a + bx + cy + dx^2 + exy + fy^2,
+    // we set exs to [[0,0],[1,0],[0,1],[2,0],[1,1],[0,2]]
+    // and coes to [a,b,c,d,e,f]ᵀ.
     inline Polynomial(const Eigen::MatrixXi &exs, const Eigen::VectorXd &coes)
       : exps(exs), coefficients(coes), variables(exs.cols()),
 	monomials(exs.rows()) {}
