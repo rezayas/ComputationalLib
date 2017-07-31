@@ -36,6 +36,7 @@
 #include "qp.hpp"
 #include <vector>
 #include <sstream>
+#include <Eigen/Cholesky>
 
 #ifndef EPSILON
 #define EPSILON .0000000000000002220446049250313080847263336181640625
@@ -45,7 +46,7 @@ using namespace Eigen;
 using std::vector;
 
 namespace complib {
-
+  
   // Utility functions for updating some data needed by the solution method
   inline void update_r(const MatrixXd &R, VectorXd &r,
 		       const VectorXd &d, int iq) {
@@ -64,6 +65,15 @@ namespace complib {
 		      unsigned &iq, double &rnorm);
   void delete_constraint(MatrixXd &R, MatrixXd &J, VectorXi &A, VectorXd &u,
 			 unsigned n, unsigned p, unsigned &iq, unsigned l);
+
+  extern double qp_solve(const MatrixXd &G, const VectorXd &g0,
+			 const MatrixXd &CE, const VectorXd &ce0,
+			 const MatrixXd &CI, const VectorXd &ci0,
+			 VectorXd &x, double c) {
+    MatrixXd B = G.ldlt().solve(MatrixXd::Identity(G.rows(), G.cols()));
+    solve_quadprog(B, B * g0, CE, ce0, CI, ci0, x);
+    return(x.dot(G * x) / 2 + g0.dot(x) + c);
+  }
   
   // Utility functions for computing the scalar product and the euclidean 
   // distance between two numbers

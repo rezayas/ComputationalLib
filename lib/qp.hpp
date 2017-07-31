@@ -81,4 +81,8 @@ namespace complib {
 		      VectorXd &x);
   extern std::pair<MatrixXd, VectorXd> makeBoxConstraints(VectorXd mins,
 						   VectorXd maxes);
+  extern double qp_solve(const MatrixXd &G, const VectorXd &g0,
+			 const MatrixXd &CE, const VectorXd &ce0,
+			 const MatrixXd &CI, const VectorXd &ci0,
+			 VectorXd &x, double c);
 }
