@@ -166,4 +166,22 @@ namespace complib {
     // And return.
     return(std::make_tuple(g, v, d));
   }
+  Polynomial Polynomial::readIn(std::istream &is) {
+    int monomials, vars;
+    is >> monomials >> vars;
+    MatrixXi exs(monomials, vars);
+    VectorXd coes(monomials);
+    for(int i = 0; i < monomials; i++) {
+      for(int j = 0; j < vars; j++)
+	is >> exs(i, j);
+      is >> coes(i);
+    }
+    return(Polynomial(exs, coes));
+  }
+  std::ostream &operator<<(std::ostream &os, const Polynomial &p) {
+    os << p.monomials << ' ' << p.variables << std::endl;
+    for(int i = 0; i < p.monomials; i++)
+      os << p.exponents().row(i) << ' ' << p.coefficients(i) << std::endl;
+    return(os);
+  }
 }

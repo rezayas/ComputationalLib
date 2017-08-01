@@ -3,6 +3,7 @@
 #include <ctime>
 #include <iostream>
 #include <boost/math/special_functions/binomial.hpp>
+#include <sstream>
 
 using namespace std;
 int main() {
@@ -52,5 +53,17 @@ int main() {
   cout << prf.poly().coefficients << endl << endl;
   cout << f.coefficients << endl << endl;
   cout << prg.poly().coefficients << endl << endl;
-  cout << g.coefficients << endl;
+  cout << g.coefficients << endl << endl;
+
+  ostringstream crtstr;
+  crtstr << f << g;
+  istringstream readr(crtstr.str());
+  complib::Polynomial a = complib::Polynomial::readIn(readr);
+  complib::Polynomial b = complib::Polynomial::readIn(readr);
+
+  cout << (a.exponents() - f.exponents()).array().abs().maxCoeff() << endl;
+  cout << (a.coefficients - f.coefficients).array().abs().maxCoeff() << endl;
+  cout << (b.exponents() - g.exponents()).array().abs().maxCoeff() << endl;
+  cout << (b.coefficients - g.coefficients).array().abs().maxCoeff() << endl;
+  
 }

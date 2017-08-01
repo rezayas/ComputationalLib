@@ -1,6 +1,8 @@
 #pragma once
 #include <Eigen/Core>
 #include <tuple>
+#include <ostream>
+#include <istream>
 
 namespace complib {
   class Polynomial {
@@ -12,6 +14,7 @@ namespace complib {
     // Returns the zero polynomial with space to be any polynomial of
     // the proper order on that many variables.
     // You can later edit the coefficients.
+    static Polynomial readIn(std::istream &is);
     Polynomial(int order, int nvars);
     // Let m be the number of rows in exs and coes.
     // Let n be the number of columns in exs.
@@ -46,4 +49,5 @@ namespace complib {
   private:
     Eigen::MatrixXi exps;
   };
+  std::ostream &operator<<(std::ostream &os, const Polynomial &p);
 }
