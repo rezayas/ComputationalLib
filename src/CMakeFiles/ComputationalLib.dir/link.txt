@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar qc libComputationalLib.a  CMakeFiles/ComputationalLib.dir/csv_linreg.cpp.o CMakeFiles/ComputationalLib.dir/linreg.cpp.o CMakeFiles/ComputationalLib.dir/multiquad.cpp.o CMakeFiles/ComputationalLib.dir/poly.cpp.o CMakeFiles/ComputationalLib.dir/polyreg.cpp.o CMakeFiles/ComputationalLib.dir/qp.cpp.o CMakeFiles/ComputationalLib.dir/CalibrateSin.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libComputationalLib.a

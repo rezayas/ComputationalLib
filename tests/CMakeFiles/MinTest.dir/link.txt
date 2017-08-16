@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/c++   -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/MinTest.dir/mintest.cpp.o  -o MinTest ../src/libComputationalLib.a /usr/local/lib/SimulationLib-0.2/libSimulationLib.a /usr/local/lib/StatisticalDistributionsLib-0.2/libStatisticalDistributionsLib.a 
