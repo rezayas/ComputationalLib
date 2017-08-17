@@ -27,9 +27,9 @@ int main() {
   cout << complib::LinearRegression::runRegression(xs, ys) << endl << endl;
 
   // Test 2: updating algorithm with omega = 0, lambda = 1 (we should get the same coefficient as Test 1)
-  complib::LinearRegression lr(3);
+  complib::LinearRegression lr(3,0.001);
   for(int i = 0; i < 1000; i++)
-    lr.updateCoefficients(xs.row(i).transpose(), ys(i));
+    lr.updateCoefficients(xs.row(i).transpose(), ys(i),0.99);
   cout << lr.getCoefficients() << endl << endl;
 
 
