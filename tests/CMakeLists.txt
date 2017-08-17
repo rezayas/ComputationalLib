@@ -17,6 +17,9 @@ add_executable (MinTest
 add_executable (PolyTest
 				polytest.cpp)
 
+add_executable (CalibrateSinTest
+				CalibrateSinTest.cpp)
+
 target_link_libraries (LinearTest
 					   ComputationalLib
 					   Eigen3::Eigen)
@@ -26,6 +29,10 @@ target_link_libraries (MinTest
 					   Eigen3::Eigen)
 
 target_link_libraries (PolyTest
+					   ComputationalLib
+					   Eigen3::Eigen)
+
+target_link_libraries (CalibrateSinTest
 					   ComputationalLib
 					   Eigen3::Eigen)
 

@@ -6,6 +6,7 @@ set(header ${header_path}/csv_linreg.hpp
            ${header_path}/poly.hpp
            ${header_path}/polyreg.hpp
            ${header_path}/qp.hpp
+           ${header_path}/CalibrateSin.hpp
            )
 
 # Require C++14 compilation
