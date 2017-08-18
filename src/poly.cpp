@@ -88,7 +88,7 @@ namespace ComputationalLib {
   // The algorithm here is the same as in expand,
   // except that we evaluate the polynomial completely.
   double Polynomial::evaluate(const VectorXd &x) const {
-    double ans;
+    double ans = 0;
     // For each monomial
     for(int i = 0; i < monomials; i++) {
       // Take the coefficient
