@@ -85,13 +85,15 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 			Eigen::VectorXd x_matrix_r(1);
 			x_matrix_r(0) = x_r;
 			PR_g.updateCoefficients(x_matrix_r, y_r, 0.018);
+
+			// cout << x_r << ": " << y_r << endl;
 		}
 	}
 
 	// Do the polynomial regression
 	do {
 		// Get the value at x_i
-		y_i = f(x_i());
+		y_i = f(x_i);
 
 		// Calculate the learning weight
 		lambda_i = (double) idx / (double) (b + idx);
@@ -122,9 +124,9 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 		// Write out data to csv:
 		fout << idx << "," << x_prev() << "," << y_i << endl;
 
-		// Debugging print statements
-		printf("n: %d x_i: %f x_prev: %f slope: %f\n", idx, x_i(), x_prev(), slope_i);
-		cout << "Coefficents:\n" << coefficients << endl;
+		// // Debugging print statements
+		// printf("n: %d x_i: %f x_prev: %f slope: %f\n", idx, x_i(), x_prev(), slope_i);
+		// cout << "Coefficents:\n" << coefficients << endl;
 
 		idx++;
 	} while (idx < maxIterations && !(abs(x_i() - x_prev()) < epsilon));

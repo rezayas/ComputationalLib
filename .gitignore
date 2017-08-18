@@ -4,11 +4,12 @@ a.out
 /ComputationalLib
 /.vs
 
-tests/CalibrateSinTest
 tests/LinearTest
 tests/Makefile
 tests/MinTest
 tests/PolyTest
+tests/CalibrateSinRunner
+tests/Test
 
 CMakeCache.txt
 CMakeFiles/
