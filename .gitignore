@@ -13,7 +13,6 @@ tests/PolyTest
 CMakeCache.txt
 CMakeFiles/
 CTestTestfile.cmake
-CalibrateSin.csv
 Makefile
 cmake_install.cmake
 install_manifest.txt
@@ -22,3 +21,5 @@ src/cmake_install.cmake
 src/libComputationalLib.a
 tests/CTestTestfile.cmake
 tests/cmake_install.cmake
+
+*.csv
