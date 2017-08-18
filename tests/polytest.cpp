@@ -36,7 +36,7 @@ int main() {
   // this is a vector D of: 1, 2, 3, 4, 5, 6
 
 // prf is polynomial regression of f.
-  ComputationalLib::PolynomialRegression prf(f);
+  ComputationalLib::PolynomialRegression prf(f, 0.001);
   ComputationalLib::PolynomialRegression prg(g);
 
 // ys start with uni(rands)
@@ -54,7 +54,7 @@ int main() {
   // First line is estimating the parameters of f(x) = 1 + 2x + 3x^2.
   // Second is g(x) = 1 + 2x + 3y + 4xy + 5x^2 + 6y^2.
   for(int i = 0; i < 1000; i++) {
-    prf.updateCoefficients(xs.row(i).head<1>(), ys(i));
+    prf.updateCoefficients(xs.row(i).head<1>(), ys(i), 0.99);
     prg.updateCoefficients(xs.row(i).transpose(), zs(i));
   }
 

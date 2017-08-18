@@ -1,13 +1,30 @@
 #include "../include/ComputationalLib/CalibrateSin.hpp"
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace ComputationalLib;
 using namespace SimulationLib;
 
-// BoundDouble x{RatioToNumeric<double>(PI_ratio{})};
-
 BoundDouble CalibrateSin(BoundDouble _x, F _f) {
+	// This model takes in a BoundDouble _x and a function _f
+	// There are several parameters to this model:
+	//  - omega:   this is the penalty for steeper slopes; it is
+	//			   used in the construction of the Polynomial
+	//             Regression
+	//  - alpha:   alpha is the step size; it is multiplied
+	//             by the slope to calculate the step to the 
+	//             next value of x_i
+	//  - epsilon: epsilon is baseline minimum distance for each 
+	//             step; if a step is smaller than epsilon, then the
+	//             regression stops
+	//  - b:       b is a constant that is used to calculate the 
+	//             learning weight, lambda. lambda approaches 1, as 
+	//             b increases. Thus, the values of b and maxIterations
+	//             should be chosen such that b is very close to 1
+	//             as b appraoches maxIterations
+
+
 	BoundDouble x_i {0};
 	BoundDouble x_prev {0};
 	F f;
@@ -15,114 +32,106 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 	double y_i, lambda_i, slope_i;
 	int maxIterations, b, idx;
 
-	vector<double> xs;
-	vector<double> ys;
+	// Will write out data into csv file
+	ofstream fout("CalibrateSin.csv");
+	fout << "Iteration,x,f(x)" << endl;
 
 	x_i = _x;
 	f = _f;
 
-	// omega is the penalty; it is one of the variables used to
-	// construct the polynomial regression
+	// These are the paramters for the model:
 	omega = 0.001;
-
-	// alpha is the step size
-	alpha = 0.01;
-
-	// epsilon is the distance from prev to current used to 
-	// check if the step was small enough to end the regression
+	alpha = 0.05;
 	epsilon = 0.00001;
-
-	// b is the constant used to define the learning weight, lambda
-	// idx is the current iteration index, starts at 1
-	// the learning weight is: idx/(b + idx)
 	b = 50;
-	idx = 1;
-
 	maxIterations = 1000;
 
-	// use the bounds from the BoundDouble x to set the bounds for the regression 
+	// This is the lambda index used with b to calculate learning weight
+	idx = 1;
+
+	// Use the bounds from the BoundDouble x to set the bounds 
+	// for this regression 
 	lower = x_i.Lower;
 	upper = x_i.Upper;
 
-
 	// First create a quadratic polynomial with coefficients of all 0
-	// exs: Eigen::VectorXi::LinSpaced(3, 0, 2) = [0,1,2]
+	// exs:   Eigen::VectorXi::LinSpaced(3, 0, 2) = [0,1,2]
 	// coefs: Eigen::VectorXd::LinSpaced(3, 0, 0) = [0.0, 0.0, 0.0]
 	Polynomial g(Eigen::VectorXi::LinSpaced(3, 0, 2),
-		         Eigen::VectorXd::LinSpaced(3, 1, 1));
+		         Eigen::VectorXd::LinSpaced(3, 0, 0));
 
 	// Initialize the poly regression with the polynomial and omega
 	PolynomialRegression PR_g(g, omega);
 
-	// Attempted to add preliminary values; However, causes the regression to be
-	// skewed because of equal weight
+	// Add preliminary values to get preliminary coefficients
+	// r is the radius for these preliminary random values
 	double r = 0.1;
 	for (int i = 0; i < 5; ++i) {
+		// there is probably a better way to randomize
 		// randomDouble is a random double between -1.0 and 1.0
 		int randomInt = rand() % 10000;
-		double randomDouble = randomInt/5000 - 1.0;
+		double randomDouble = (double)randomInt/5000.0 - 1.0;
 
 		double x_r, y_r;
+		// x_r is some random value near x
 		x_r = x_i() + randomDouble * r;
 
 		if (x_r < lower || x_r > upper) 
 			--i;
 		else {
+			// Update the coefficients, updateCoefficients
+			// function needs to be given a 1x1 matrix
 			y_r = f(x_r);
 			Eigen::VectorXd x_matrix_r(1);
 			x_matrix_r(0) = x_r;
-			PR_g.updateCoefficients(x_matrix_r, y_r);
+			PR_g.updateCoefficients(x_matrix_r, y_r, 0.018);
 		}
 	}
 
-	// do 
+	// Do the polynomial regression
 	do {
-		// get the value at x_i
+		// Get the value at x_i
 		y_i = f(x_i());
 
-		// calculate the learning weight
-		lambda_i = idx / (b + idx);
+		// Calculate the learning weight
+		lambda_i = (double) idx / (double) (b + idx);
 
 		// x value need to be converted to matrix to use
-		// updateCoefficients
+		// updateCoefficients function so we create a 1x1 matrix
 		Eigen::VectorXd x_matrix(1);
 		x_matrix(0) = x_i();
 
-		// update the coefficients, ideally you would use lambda, but
-		// the code for the lambda isn't working
-		PR_g.updateCoefficients(x_matrix, y_i);
-		// PR_g.updateCoefficients(x_matrix, y_i, lambda_i);
+		// Update the coefficients
+		// PR_g.updateCoefficients(x_matrix, y_i);
+		PR_g.updateCoefficients(x_matrix, y_i, lambda_i);
 
-		// calculate the derivative, for now manually
+		// Calculate the derivative, for now manually
 		Eigen::VectorXd coefficients = PR_g.poly().coefficients;
 
-		// coefficients will be a vector : [a b c]
-		// correspdonding to: a + bx + cx^2 
-
-		// derivative of a + bx + cx^2 is : b + 2cx
-		// find slope by evaluating derivative at x = x_i
+		// Coefficients will be a vector : [a b c]
+		// correspdonding to: (a + bx + cx^2)
+		// Derivative of (a + bx + cx^2) is : (b + 2cx)
+		// Find slope by evaluating derivative at x = x_i
 		slope_i = coefficients(1) + 2 * coefficients(2) * x_i();
 
-		// set x_prev to previous value of x_i, update x_i
+		// Set x_prev to previous value of x_i, update x_i
 		x_prev = x_i();
 		x_i = max(lower,
 				  min(upper, x_i() + alpha * slope_i));
 
-
-		// push values of x and y onto vectors for data output
-		// although because this isn't a real class, 
-		// there isn't any way to actually access these values
-		// when the function resolves
-		xs.push_back(x_prev());
-		ys.push_back(y_i);
-
-		idx++;
+		// Write out data to csv:
+		fout << idx << "," << x_prev() << "," << y_i << endl;
 
 		// Debugging print statements
 		printf("n: %d x_i: %f x_prev: %f slope: %f\n", idx, x_i(), x_prev(), slope_i);
-
 		cout << "Coefficents:\n" << coefficients << endl;
+
+		idx++;
 	} while (idx < maxIterations && !(abs(x_i() - x_prev()) < epsilon));
+
+	// Flush and close output buffer
+    fout.flush();
+    fout.close();
 
 	return x_i;
 }
