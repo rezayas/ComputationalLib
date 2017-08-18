@@ -15,6 +15,9 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 	double y_i, lambda_i, slope_i;
 	int maxIterations, b, idx;
 
+	vector<double> xs;
+	vector<double> ys;
+
 	x_i = _x;
 	f = _f;
 
@@ -23,7 +26,7 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 	omega = 0.001;
 
 	// alpha is the step size
-	alpha = 0.05;
+	alpha = 0.01;
 
 	// epsilon is the distance from prev to current used to 
 	// check if the step was small enough to end the regression
@@ -51,6 +54,27 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 	// Initialize the poly regression with the polynomial and omega
 	PolynomialRegression PR_g(g, omega);
 
+	// Attempted to add preliminary values; However, causes the regression to be
+	// skewed because of equal weight
+	double r = 0.1;
+	for (int i = 0; i < 5; ++i) {
+		// randomDouble is a random double between -1.0 and 1.0
+		int randomInt = rand() % 10000;
+		double randomDouble = randomInt/5000 - 1.0;
+
+		double x_r, y_r;
+		x_r = x_i() + randomDouble * r;
+
+		if (x_r < lower || x_r > upper) 
+			--i;
+		else {
+			y_r = f(x_r);
+			Eigen::VectorXd x_matrix_r(1);
+			x_matrix_r(0) = x_r;
+			PR_g.updateCoefficients(x_matrix_r, y_r);
+		}
+	}
+
 	// do 
 	do {
 		// get the value at x_i
@@ -64,8 +88,10 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 		Eigen::VectorXd x_matrix(1);
 		x_matrix(0) = x_i();
 
-		// update the coefficients
-		PR_g.updateCoefficients(x_matrix, y_i, lambda_i);
+		// update the coefficients, ideally you would use lambda, but
+		// the code for the lambda isn't working
+		PR_g.updateCoefficients(x_matrix, y_i);
+		// PR_g.updateCoefficients(x_matrix, y_i, lambda_i);
 
 		// calculate the derivative, for now manually
 		Eigen::VectorXd coefficients = PR_g.poly().coefficients;
@@ -83,14 +109,19 @@ BoundDouble CalibrateSin(BoundDouble _x, F _f) {
 				  min(upper, x_i() + alpha * slope_i));
 
 
+		// push values of x and y onto vectors for data output
+		// although because this isn't a real class, 
+		// there isn't any way to actually access these values
+		// when the function resolves
+		xs.push_back(x_prev());
+		ys.push_back(y_i);
+
 		idx++;
 
-		cout << coefficients << endl;
-
-		cout << "n: " << idx << " x_matrix: " << x_matrix << " x_prev: " << x_prev() 
-			 << " slope: "  << slope_i << endl;
-
+		// Debugging print statements
 		printf("n: %d x_i: %f x_prev: %f slope: %f\n", idx, x_i(), x_prev(), slope_i);
+
+		cout << "Coefficents:\n" << coefficients << endl;
 	} while (idx < maxIterations && !(abs(x_i() - x_prev()) < epsilon));
 
 	return x_i;
