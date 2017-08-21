@@ -13,7 +13,6 @@ namespace complib {
     mat w = mat::Zero(ys.size(), ys.size());
     for(int i = ys.size() - 1, p = 1; i >= 0; i--, p /= lambda)
       w(i,i) = p;
-    // (xᵀwx + ωI)⁻¹(xᵀwy)
     return((xs.transpose() * w * xs
 	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0,0) * lambda)
 	   .ldlt().solve(xs.transpose() * w * ys));
