@@ -184,4 +184,26 @@ namespace complib {
       os << p.exponents().row(i) << ' ' << p.coefficients(i) << std::endl;
     return(os);
   }
+
+  Eigen::VectorXd Polynomial::derivative(Eigen::VectorXd xs) {
+    Eigen::VectorXd ret;
+    ret.setZero(vars);
+    for(int i = 0; i < monomials; i++) {
+      double ai = coes(i);
+      for(int j = 0; j < vars; j++) {
+	unsigned v = exs(i, j);
+	double d = xs(j);
+	while(v) {
+	  if(v & 1)
+	    ai *= d;
+	  v >>= 1;
+	  d *= d;
+	}
+      }
+      for(int j = 0; j < vars; j++)
+	if(exs(i, j))
+	  ret(j) += v * exs(i, j) / xs(j);
+      
+    }
+  }
 }
