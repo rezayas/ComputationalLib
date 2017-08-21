@@ -46,7 +46,7 @@ namespace complib {
     // and a scalar c such that f_0(x) = c.
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd, double> quaddec() const;
     const int variables, monomials;
-    Eigen::VectorXd derivative(Eigen::VectorXd &);
+    Eigen::VectorXd derivative(const Eigen::VectorXd &);
   private:
     Eigen::MatrixXi exps;
   };

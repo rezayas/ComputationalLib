@@ -185,25 +185,27 @@ namespace complib {
     return(os);
   }
 
-  Eigen::VectorXd Polynomial::derivative(Eigen::VectorXd xs) {
+  Eigen::VectorXd Polynomial::derivative(const Eigen::VectorXd &xs) {
     Eigen::VectorXd ret;
-    ret.setZero(vars);
-    for(int i = 0; i < monomials; i++) {
-      double ai = coes(i);
-      for(int j = 0; j < vars; j++) {
-	unsigned v = exs(i, j);
-	double d = xs(j);
-	while(v) {
-	  if(v & 1)
-	    ai *= d;
-	  v >>= 1;
-	  d *= d;
+    ret.setZero(variables);
+    for(int i = 0; i < monomials; i++)
+      for(int j = 0; j < variables; j++)
+	if(exps(i, j)) {
+	  double ai = coefficients(i) * exps(i, j);
+	  for(int k = 0; k < variables; k++) {
+	    unsigned v = exps(i, k);
+	    if(j == k)
+	      v--;
+	    double d = xs(j);
+	    while(v) {
+	      if(v & 1)
+		ai *= d;
+	      v >>= 1;
+	      d *= d;
+	    }
+	  }
+	  ret(j) += ai;
 	}
-      }
-      for(int j = 0; j < vars; j++)
-	if(exs(i, j))
-	  ret(j) += v * exs(i, j) / xs(j);
-      
-    }
+      return(ret);
   }
 }

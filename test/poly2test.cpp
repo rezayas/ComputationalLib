@@ -5,6 +5,8 @@
 #include <boost/math/special_functions/binomial.hpp>
 #include <sstream>
 
+typedef Eigen::Matrix<double, 1, 1> Matrix1d;
+
 using namespace std;
 int main() {
   Eigen::MatrixX2d xs(1000, 2); // Why do I still need to pass the 2?
@@ -26,6 +28,14 @@ int main() {
 			1,1, 2,0, 0,2).finished(),
 			(Eigen::VectorXd(6) << 1, 2, -3, 4, -5, 6).finished());
   
+  cout << f.evaluate(Matrix1d(0)) << ' ' << f.evaluate(Matrix1d(-1)) << endl;
+  cout << g.evaluate(Eigen::Vector2d(0, 0)) << ' '
+       << g.evaluate(Eigen::Vector2d(-1, 1)) << endl;
+  cout << f.derivative(Matrix1d(0)) << ' '
+       << f.derivative(Matrix1d(-1)) << endl;
+  cout << g.derivative(Eigen::Vector2d(0,0)).transpose() << endl
+       << g.derivative(Eigen::Vector2d(-1,1)).transpose() << endl << endl;
+    
   for(int i = 0; i < 1000; i++) {
     ys(i) += f.evaluate(xs.row(i).head<1>());
     zs(i) += g.evaluate(xs.row(i).transpose());
