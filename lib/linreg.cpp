@@ -82,8 +82,7 @@ namespace complib {
       // b' = (b - bxxᵀb/γ)/λ
       double gamma = lambda + (x.transpose() * b * x)(0,0);
       theta += (b * x * (y - theta.transpose() * x) / gamma).eval();
-      b -= (b * x * x.transpose() * b / gamma).eval();
-      b /= lambda;
+      b -= (b * x * x.transpose() * b / gamma / lambda).eval();
     }
     return(ready);
   }
