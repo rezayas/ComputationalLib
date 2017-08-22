@@ -191,39 +191,23 @@ namespace complib {
   }
 
   Eigen::VectorXd Polynomial::derivative(const Eigen::VectorXd &xs) const {
-    Eigen::VectorXd ret;
-    Eigen::VectorXd coes = coefficients;
-    ret.setZero(variables);
-    for(int i = 0; i < monomials; i++)
-      for(int j = 0; j < variables; j++)
-	if(exps(i, j)) {
-	  double ai = coes(i) * exps(i, j);
-	  for(int k = 0; k < variables; k++) {
-	    unsigned v = exps(i, k);
-	    if(j == k)
-	      v--;
-	    double d = xs(j);
-	    while(v) {
-	      if(v & 1)
-		ai *= d;
-	      v >>= 1;
-	      d *= d;
-	    }
-	  }
-	  ret(j) += ai;
-	}
-      return(ret);
+    Eigen::VectorXd ret(variables);
+    for(int i = 0; i < variables; i++) {
+      ret(i) = formalDerivative(i).evaluate(xs);
+    }
+    return(ret);
   }
 
   Polynomial Polynomial::formalDerivative(int i) const {
     Eigen::VectorXd coes = coefficients;
     std::vector<std::pair<Eigen::VectorXi, double> > terms;
-    for(int j = 0; j < monomials; j++)
-      if(exps(i, j)) {
-	terms.push_back(std::make_pair(exps.row(j), coes(j) * exps(i, j)));
+    for(int j = 0; j < monomials; j++) {
+      if(exps(j, i)) {
+	terms.push_back(std::make_pair(exps.row(j), coes(j) * exps(j, i)));
 	terms.back().first(i)--;
       }
-    Eigen::MatrixXi texps(variables, terms.size());
+    }
+    Eigen::MatrixXi texps(terms.size(), variables);
     Eigen::VectorXd tcoes(terms.size());
     for(int j = 0; j < terms.size(); j++) {
       texps.row(j) = terms[j].first;
