@@ -185,7 +185,7 @@ namespace complib {
     return(os);
   }
 
-  Eigen::VectorXd Polynomial::derivative(const Eigen::VectorXd &xs) {
+  Eigen::VectorXd Polynomial::derivative(const Eigen::VectorXd &xs) const {
     Eigen::VectorXd ret;
     ret.setZero(variables);
     for(int i = 0; i < monomials; i++)
