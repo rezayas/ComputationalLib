@@ -3,6 +3,7 @@
 #include <tuple>
 #include <ostream>
 #include <istream>
+#include <vector>
 
 namespace complib {
   class Polynomial {
@@ -34,8 +35,8 @@ namespace complib {
     // Returns the products in the proper order.
     // Ignores the coefficients.
     Eigen::VectorXd expand(const Eigen::VectorXd &) const;
-    void fitToData(const Eigen::MatrixXd &, const Eigen::VectorXd &,
-		   double = 1, double = 0);
+    Polynomial &fitToData(const Eigen::MatrixXd &, const Eigen::VectorXd &,
+			  double = 1, double = 0);
     // Returns (g, v, c) such that f(x) = xᵀgx/2 + xᵀv + c,
     // plus possibly terms that are third-order or higher in x.
     // In other words,
@@ -47,6 +48,8 @@ namespace complib {
     std::tuple<Eigen::MatrixXd, Eigen::VectorXd, double> quaddec() const;
     const int variables, monomials;
     Eigen::VectorXd derivative(const Eigen::VectorXd &) const;
+    std::vector<Polynomial> formalDerivatives() const;
+    Polynomial formalDerivative(int) const;
   private:
     Eigen::MatrixXi exps;
   };

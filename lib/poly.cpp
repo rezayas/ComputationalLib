@@ -1,6 +1,7 @@
 #include "poly.hpp"
 #include <boost/math/special_functions/binomial.hpp>
 #include "linreg.hpp"
+#include <utility>
 
 using namespace Eigen;
 namespace complib {
@@ -88,11 +89,12 @@ namespace complib {
   // The algorithm here is the same as in expand,
   // except that we evaluate the polynomial completely.
   double Polynomial::evaluate(const VectorXd &x) const {
+    VectorXd coes = coefficients;
     double ans=0;
     // For each monomial
     for(int i = 0; i < monomials; i++) {
       // Take the coefficient
-      double ai = coefficients(i);
+      double ai = coes(i);
       // Multiply it by the proper powers of the variables
       for(int j = 0; j < variables; j++) {
 	unsigned v = exps(i, j);
@@ -110,7 +112,7 @@ namespace complib {
     return(ans);
   }
 
-  void Polynomial::fitToData(const MatrixXd &xs, const VectorXd &ys,
+  Polynomial &Polynomial::fitToData(const MatrixXd &xs, const VectorXd &ys,
 			     double lambda, double omega) {
     // Create a matrix to fit the monomials
     MatrixXd longs(xs.rows(), monomials);
@@ -121,12 +123,14 @@ namespace complib {
     // We're done with that.
     // Do linear regression.
     coefficients = LinearRegression::runRegression(lambda, omega, longs, ys);
+    return(*this);
   }
 
   std::tuple<MatrixXd, VectorXd, double> Polynomial::quaddec() const {
     MatrixXd g = MatrixXd::Zero(variables, variables);
     VectorXd v = VectorXd::Zero(variables);
     double d = 0;
+    VectorXd coes = coefficients;
     // For each monomial:
     for(int i = 0; i < monomials; i++) {
       int v1 = -1, v2 = -1, order = 0;
@@ -151,16 +155,16 @@ namespace complib {
       // If no variables are included, this is a constant term,
       // so add its coefficient to d.
       if(order == 0)
-	d += coefficients(i);
+	d += coes(i);
       // If the term is first-order, including variable i,
       // add its coefficient to v(i).
       else if(order == 1)
-	v(v1) += coefficients(i);
+	v(v1) += coes(i);
       // If it's second order, and is of the form cx_ix_j,
       // add c to g(i, j) and g(j, i).
       else if(order == 2) {
-	g(v1, v2) += coefficients(i);
-	g(v2, v1) += coefficients(i);
+	g(v1, v2) += coes(i);
+	g(v2, v1) += coes(i);
       }
     }
     // And return.
@@ -179,19 +183,21 @@ namespace complib {
     return(Polynomial(exs, coes));
   }
   std::ostream &operator<<(std::ostream &os, const Polynomial &p) {
+    Eigen::VectorXd coes = p.coefficients;
     os << p.monomials << ' ' << p.variables << std::endl;
     for(int i = 0; i < p.monomials; i++)
-      os << p.exponents().row(i) << ' ' << p.coefficients(i) << std::endl;
+      os << p.exponents().row(i) << ' ' << coes(i) << std::endl;
     return(os);
   }
 
   Eigen::VectorXd Polynomial::derivative(const Eigen::VectorXd &xs) const {
     Eigen::VectorXd ret;
+    Eigen::VectorXd coes = coefficients;
     ret.setZero(variables);
     for(int i = 0; i < monomials; i++)
       for(int j = 0; j < variables; j++)
 	if(exps(i, j)) {
-	  double ai = coefficients(i) * exps(i, j);
+	  double ai = coes(i) * exps(i, j);
 	  for(int k = 0; k < variables; k++) {
 	    unsigned v = exps(i, k);
 	    if(j == k)
@@ -207,5 +213,30 @@ namespace complib {
 	  ret(j) += ai;
 	}
       return(ret);
+  }
+
+  Polynomial Polynomial::formalDerivative(int i) const {
+    Eigen::VectorXd coes = coefficients;
+    std::vector<std::pair<Eigen::VectorXi, double> > terms;
+    for(int j = 0; j < monomials; j++)
+      if(exps(i, j)) {
+	terms.push_back(std::make_pair(exps.row(j), coes(j) * exps(i, j)));
+	terms.back().first(i)--;
+      }
+    Eigen::MatrixXi texps(variables, terms.size());
+    Eigen::VectorXd tcoes(terms.size());
+    for(int j = 0; j < terms.size(); j++) {
+      texps.row(j) = terms[j].first;
+      tcoes(j) = terms[j].second;
+    }
+    return(Polynomial(texps, tcoes));
+  }
+  
+  std::vector<Polynomial> Polynomial::formalDerivatives() const {
+    std::vector<Polynomial> ret;
+    Polynomial p = *this;
+    for(int i = 0; i < variables; i++)
+      ret.push_back(p.formalDerivative(i));
+    return(ret);
   }
 }
