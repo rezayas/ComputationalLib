@@ -66,18 +66,5 @@ int main() {
       cout << f.coefficients << endl << endl;
       cout << prg.poly().coefficients << endl << endl;
       cout << g.coefficients << endl << endl;
-
-	  cout << f.evaluate(Matrix1d(0)) << ' ' << f.evaluate(Matrix1d(-1)) << endl;
-	  cout << g.evaluate(Eigen::Vector2d(0, 0)) << ' '
-		  << g.evaluate(Eigen::Vector2d(-1, 1)) << endl;
-	  cout << f.derivative(Matrix1d(0)) << ' '
-		  << f.derivative(Matrix1d(-1)) << endl;
-	  cout << g.derivative(Eigen::Vector2d(0, 0)).transpose() << endl
-		  << g.derivative(Eigen::Vector2d(-1, 1)).transpose() << endl << endl;
-
-	  cout << prf.poly().derivative(Matrix1d(0)) << ' '
-		  << prf.poly().derivative(Matrix1d(-1)) << endl;
-	  cout << prg.poly().derivative(Eigen::Vector2d(0, 0)).transpose() << endl
-		  << prg.poly().derivative(Eigen::Vector2d(-1, 1)).transpose() << endl << endl;
     }
 }
