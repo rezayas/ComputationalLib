@@ -10,12 +10,13 @@ namespace complib {
     // do x⁻¹y (because (xᵀwx)⁻¹(xᵀwy) = x⁻¹w⁻¹xᵀ⁻¹xᵀwy = x⁻¹w⁻¹wy = x⁻¹y)
     if(xs.rows() == xs.cols() && omega == 0)
       return(xs.fullPivLu().solve(ys));
-    mat w = mat::Zero(ys.size(), ys.size());
-    for(int i = ys.size() - 1, p = 1; i >= 0; i--, p /= lambda)
-      w(i,i) = p;
-    return((xs.transpose() * w * xs
-	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0,0) * lambda)
-	   .ldlt().solve(xs.transpose() * w * ys));
+    double p = 1;
+    vec w(ys.size());
+    for(int i = ys.size() - 1; i >= 0; i--, p *= lambda)
+      w(i) = p;
+    return((xs.transpose() * w.asDiagonal() * xs
+	    + mat::Identity(xs.cols(), xs.cols()) * omega * w(0) * lambda)
+	   .ldlt().solve(xs.transpose() * w.asDiagonal() * ys));
   }
   
   void LinearRegression::reset(int idim, double iomega) {
