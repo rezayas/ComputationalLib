@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 
-namespace complib {
+namespace ComputationalLib {
   typedef Eigen::MatrixXd mat;
   typedef Eigen::VectorXd vec;
   class LinearRegression {

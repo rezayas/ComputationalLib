@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include "qp.hpp"
+#include "../include/ComputationalLib/qp.hpp"
 #include <vector>
 #include <sstream>
 #include <Eigen/Cholesky>
@@ -45,7 +45,7 @@
 using namespace Eigen;
 using std::vector;
 
-namespace complib {
+namespace ComputationalLib {
   
   // Utility functions for updating some data needed by the solution method
   inline void update_r(const MatrixXd &R, VectorXd &r,

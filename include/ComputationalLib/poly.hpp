@@ -5,18 +5,32 @@
 #include <istream>
 #include <vector>
 
-namespace complib {
+namespace ComputationalLib {
   class Polynomial {
   public:
+
+    // There were no line breaks in this file, so I (Nathan) tried my 
+    // best to associate the comments with the correspdoning functions
+
+
+
     inline const Eigen::MatrixXi &exponents() const {
       return(exps);
     }
+
+
     Eigen::VectorXd coefficients;
+
+    
     // Returns the zero polynomial with space to be any polynomial of
     // the proper order on that many variables.
     // You can later edit the coefficients.
     static Polynomial readIn(std::istream &is);
     Polynomial(int order, int nvars);
+
+
+
+
     // Let m be the number of rows in exs and coes.
     // Let n be the number of columns in exs.
     // Then the polynomial represented here is:
@@ -31,12 +45,16 @@ namespace complib {
     inline Polynomial(const Eigen::MatrixXi &exs, const Eigen::VectorXd &coes)
       : exps(exs), coefficients(coes), variables(exs.cols()),
 	monomials(exs.rows()) {}
+
+
+
     double evaluate(const Eigen::VectorXd &) const;
     // Returns the products in the proper order.
     // Ignores the coefficients.
     Eigen::VectorXd expand(const Eigen::VectorXd &) const;
     Polynomial &fitToData(const Eigen::MatrixXd &, const Eigen::VectorXd &,
 			  double = 1, double = 0);
+
     // Returns (g, v, c) such that f(x) = xᵀgx/2 + xᵀv + c,
     // plus possibly terms that are third-order or higher in x.
     // In other words,
@@ -50,6 +68,7 @@ namespace complib {
     Eigen::VectorXd derivative(const Eigen::VectorXd &) const;
     std::vector<Polynomial> formalDerivatives() const;
     Polynomial formalDerivative(int) const;
+
   private:
     Eigen::MatrixXi exps;
   };

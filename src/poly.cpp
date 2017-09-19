@@ -1,10 +1,10 @@
-#include "poly.hpp"
+#include "../include/ComputationalLib/poly.hpp"
+#include "../include/ComputationalLib/linreg.hpp"
 #include <boost/math/special_functions/binomial.hpp>
-#include "linreg.hpp"
 #include <utility>
 
 using namespace Eigen;
-namespace complib {
+namespace ComputationalLib {
   Polynomial::Polynomial(int order, int nvars) :
     monomials((int)boost::math::binomial_coefficient<double>(order + nvars,
 							     nvars)),
@@ -50,7 +50,7 @@ namespace complib {
       }
     }
   }
-  
+
   VectorXd Polynomial::expand(const VectorXd &x) const {
     VectorXd ans(monomials);
     for(int i = 0; i < monomials; i++) {
@@ -90,7 +90,7 @@ namespace complib {
   // except that we evaluate the polynomial completely.
   double Polynomial::evaluate(const VectorXd &x) const {
     VectorXd coes = coefficients;
-    double ans=0;
+    double ans = 0;
     // For each monomial
     for(int i = 0; i < monomials; i++) {
       // Take the coefficient
@@ -215,7 +215,7 @@ namespace complib {
     }
     return(Polynomial(texps, tcoes));
   }
-  
+
   std::vector<Polynomial> Polynomial::formalDerivatives() const {
     std::vector<Polynomial> ret;
     Polynomial p = *this;

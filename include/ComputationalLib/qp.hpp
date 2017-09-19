@@ -72,7 +72,7 @@ along with QuadProg++. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Eigen/Core>
 #include <utility>
-namespace complib {
+namespace ComputationalLib {
 
   using namespace Eigen;
   extern bool solve_quadprog(const MatrixXd &B, const VectorXd &theta, 

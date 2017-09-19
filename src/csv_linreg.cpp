@@ -1,8 +1,8 @@
-#include "csv_linreg.hpp"
-#include "linreg.hpp"
+#include "../include/ComputationalLib/csv_linreg.hpp"
+#include "../include/ComputationalLib/linreg.hpp"
 #include <cstdio>
 
-namespace complib {
+namespace ComputationalLib {
   Eigen::VectorXd regressFile(const char *fname, int dim,
 			      double lambda, double omega) {
     LinearRegression lr(dim, omega);

@@ -2,7 +2,7 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 
-namespace complib {
+namespace ComputationalLib {
   using namespace Eigen;
   vec LinearRegression::runRegression(double lambda, double omega,
 				      const mat &xs, const vec &ys) {

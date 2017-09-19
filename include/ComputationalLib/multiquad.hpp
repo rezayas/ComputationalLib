@@ -2,7 +2,7 @@
 #include "polyreg.hpp"
 #include <vector>
 
-namespace complib {
+namespace ComputationalLib {
   class Multiquad {
   public:
     /*************************************************************************\

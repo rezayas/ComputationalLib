@@ -1,7 +1,7 @@
-#include "multiquad.hpp"
+#include "../include/ComputationalLib/multiquad.hpp"
 #include <stdexcept>
 
-namespace complib {
+namespace ComputationalLib {
   void Multiquad::addDataPoint(const vec &x, double y, double lambda) {
     // Basically, for each i,
     // test if brackets(i) is 0 (in which case it's fine),

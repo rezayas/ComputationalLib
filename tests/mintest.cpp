@@ -1,16 +1,16 @@
 #include <iostream>
-#include "poly.hpp"
+#include "../include/ComputationalLib/poly.hpp"
 #include <Eigen/Core>
 #include <Eigen/Cholesky>
 
 using namespace std;
 int main() {
   // 3x^2 + 2x + 1
-  complib::Polynomial f(Eigen::VectorXi::LinSpaced(3, 0, 2),
+  ComputationalLib::Polynomial f(Eigen::VectorXi::LinSpaced(3, 0, 2),
 			Eigen::VectorXd::LinSpaced(3, 1, 3));
   
   // 1 + 2x + 3y + 4xy + 5x^2 + 6y^2
-  complib::Polynomial g((Eigen::MatrixX2i(6,2) << 0,0, 1,0, 0,1,
+  ComputationalLib::Polynomial g((Eigen::MatrixX2i(6,2) << 0,0, 1,0, 0,1,
 			 1,1, 2,0, 0,2).finished(),
 			Eigen::VectorXd::LinSpaced(6, 1, 6));
   
