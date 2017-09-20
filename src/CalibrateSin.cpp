@@ -45,15 +45,15 @@ UnitDouble CalibrateSin(UnitDouble _x, F _f) {
 	f = _f;
 
 	// These are the paramters for the model:
-	omega   = 0.001;
-	alpha   = 0.05;
-	epsilon = 0.00001;
+	omega         = 0.001;
+	alpha         = 0.05;
+	epsilon       = 0.00001;
 
 	maxIterations = 1000;
 	b             = 50;
 
 	// This is the lambda index used with b to calculate learning weight
-	idx = 1;
+	idx           = 1;
 
 	// Use the bounds from the UnitDouble x to set the bounds
 	// for this regression
