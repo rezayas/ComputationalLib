@@ -21,7 +21,7 @@ namespace ComputationalLib {
 
     Eigen::VectorXd coefficients;
 
-    
+
     // Returns the zero polynomial with space to be any polynomial of
     // the proper order on that many variables.
     // You can later edit the coefficients.

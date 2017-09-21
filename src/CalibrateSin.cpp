@@ -34,75 +34,75 @@ UnitDouble CalibrateSin(UnitDouble _x, F _f) {
 
     double omega, alpha, epsilon;
 
+
+    int maxIterations, b, idx;
+
+    // Will write out data into csv file
+    ofstream fout("CalibrateSin.csv");
+    fout << "Iteration,x,f(x)" << endl;
+
+    // These are the paramters for the model:
+    omega         = 0.001;
+    alpha         = 0.05;
+    epsilon       = 0.00001;
+
+    maxIterations = 1000;
+    b             = 50;
+
+    // This is the lambda index used with b to calculate learning weight
+    idx           = 1;
+
+    // Use the bounds from the UnitDouble x to set the bounds
+    // for this regression
+    lower = x_i.Lower;
+    upper = x_i.Upper;
+
+    // First create a quadratic polynomial with coefficients of all 0
+    // exs:   Eigen::VectorXi::LinSpaced(3, 0, 2) = [0,1,2]
+    // coefs: Eigen::VectorXd::LinSpaced(3, 0, 0) = [0.0, 0.0, 0.0]
+    Polynomial g( Eigen::VectorXi::LinSpaced(3, 0, 2),
+                  Eigen::VectorXd::LinSpaced(3, 0, 0) );
+
+    // Initialize the poly regression with the polynomial and omega
+    PolynomialRegression PR_g(g, omega);
+
+    // Add preliminary values to get preliminary coefficients
+    for (int i = 0; i < 5; ++i) {
+
+        // r is the radius for these preliminary random values
+        double r = 0.1;
+
+        // there is probably a better way to randomize
+        // randomDouble is a random double between -1.0 and 1.0
+        int randomInt       = rand() % 10000;
+        double randomDouble = (double)randomInt/5000.0 - 1.0;
+
+        // x_r is some random value near x
+        double x_r = x_i() + (randomDouble * r);
+        double y_r = f(x_r);
+
+        // Iterate again if a lower or upper bound is violated
+        if (x_r < lower || x_r > upper)
+            --i;
+        else {
+            // Update the coefficients, updateCoefficients
+            // function needs to be given a 1x1 matrix
+            Eigen::VectorXd x_matrix_r(1);
+            x_matrix_r(0) = x_r;
+            PR_g.updateCoefficients(x_matrix_r, y_r, 0.018);
+
+            // cout << x_r << ": " << y_r << endl;
+        }
+    }
+
 	double y_i, lambda_i, slope_i;
+    // Do the polynomial regression
+    do {
+        // Get the value at x_i
+        y_i = f(x_i);
 
-	int maxIterations, b, idx;
-
-	// Will write out data into csv file
-	ofstream fout("CalibrateSin.csv");
-	fout << "Iteration,x,f(x)" << endl;
-
-	f = _f;
-
-	// These are the paramters for the model:
-	omega         = 0.001;
-	alpha         = 0.05;
-	epsilon       = 0.00001;
-
-	maxIterations = 1000;
-	b             = 50;
-
-	// This is the lambda index used with b to calculate learning weight
-	idx           = 1;
-
-	// Use the bounds from the UnitDouble x to set the bounds
-	// for this regression
-	lower = x_i.Lower;
-	upper = x_i.Upper;
-
-	// First create a quadratic polynomial with coefficients of all 0
-	// exs:   Eigen::VectorXi::LinSpaced(3, 0, 2) = [0,1,2]
-	// coefs: Eigen::VectorXd::LinSpaced(3, 0, 0) = [0.0, 0.0, 0.0]
-	Polynomial g( Eigen::VectorXi::LinSpaced(3, 0, 2),
-				  Eigen::VectorXd::LinSpaced(3, 0, 0) );
-
-	// Initialize the poly regression with the polynomial and omega
-	PolynomialRegression PR_g(g, omega);
-
-	// Add preliminary values to get preliminary coefficients
-	// r is the radius for these preliminary random values
-	double r = 0.1;
-	for (int i = 0; i < 5; ++i) {
-		// there is probably a better way to randomize
-		// randomDouble is a random double between -1.0 and 1.0
-		int randomInt = rand() % 10000;
-		double randomDouble = (double)randomInt/5000.0 - 1.0;
-
-		double x_r, y_r;
-		// x_r is some random value near x
-		x_r = x_i() + randomDouble * r;
-
-		if (x_r < lower || x_r > upper)
-			--i;
-		else {
-			// Update the coefficients, updateCoefficients
-			// function needs to be given a 1x1 matrix
-			y_r = f(x_r);
-			Eigen::VectorXd x_matrix_r(1);
-			x_matrix_r(0) = x_r;
-			PR_g.updateCoefficients(x_matrix_r, y_r, 0.018);
-
-			// cout << x_r << ": " << y_r << endl;
-		}
-	}
-
-	// Do the polynomial regression
-	do {
-		// Get the value at x_i
-		y_i = f(x_i);
-
-		// Calculate the learning weight
-		lambda_i = (double) idx / (double) (b + idx);
+        // Calculate the learning weight
+        lambda_i = (double) idx / (double) (b + idx);
 
 		// x value need to be converted to matrix to use
 		// updateCoefficients function so we create a 1x1 matrix
@@ -124,8 +124,8 @@ UnitDouble CalibrateSin(UnitDouble _x, F _f) {
 
 		// Set x_prev to previous value of x_i, update x_i
 		x_prev = x_i();
-		x_i = max(lower,
-				  min(upper, x_i() + alpha * slope_i));
+		x_i = max( lower,
+				   min( upper, x_i()+(alpha * slope_i) ) );
 
 		// Write out data to csv:
 		fout << idx << "," << x_prev() << "," << y_i << endl;
