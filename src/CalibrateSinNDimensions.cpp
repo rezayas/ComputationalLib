@@ -16,22 +16,25 @@ using std::get, std::min, std::max;
 #define ALPHA    0.05
 #define EPSILON  0.00001
 
-#define MAXITERS 1000
 #define B_       50
+#define MAXITERS 1000
 
-
+// Are all arguments truthy?
 template <typename... InTs>
 bool all(InTs... args) { return (... && args); }
 
+// Are any arguments truthy?
 template <typename... InTs>
 bool any(InTs... args) { return (... || args); }
 
+// Returns a function 'f: Ts... => I' whose output
+// is always 'value'
 template <typename I,
           typename... Ts>
-function<I(Ts...)>
+std::function<I(Ts...)>
 IdentityFnGen(I value)
 {
-    return [=value] (Ts... params) -> I {
+    return [=value] (Ts&&... params) -> I {
         return value;
     };
 }
@@ -69,13 +72,13 @@ Xs CalibrateSin(Xs x_i,
     // 'b': A constant used to calculate Lambda, the learning weight.
     //   As 'b' increases, lambda approaches 1. Therefore, the values of
     //   'b' and 'maxIters' should be chosen such that "b is very
-    //   close to 1 as b approaches 'maxIters'"??
+    //   close to 1 as b approaches 'maxIters'??
     double omega   {OMEGA};
     double alpha   {ALPHA};
     double epsilon {EPSILON};
 
-    int maxIters   {MAXITERS};
     int b          {B_};
+    int maxIters   {MAXITERS};
     int idx        {1};
 
     // Form two tuples of lower and upper bounds on each x in X
@@ -83,7 +86,7 @@ Xs CalibrateSin(Xs x_i,
     Xs uppers {get<I>(x_i).Upper...};
 
     // Set up a regression using a 2nd-degree polynomial for a
-    // function f(X) where the set X has d members
+    // function f(X) where the set X has 'd' members
     PolynomialRegression Regression(2, d, omega);
 
     // The algorithm must stop iterating when we hit 'maxIters', or
@@ -116,7 +119,7 @@ Xs CalibrateSin(Xs x_i,
         // Represent x_i as an Eigen vector for use with Regression obj.
         // Comma-initializer syntax described at:
         //   https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
-        Eigen::VectorXd x_i_E(d + 1);
+        Eigen::VectorXd x_i_E(d);
         x_i_E << get<I>(x_i)...;
 
         // Add a new point to the regression
@@ -153,12 +156,12 @@ Xs CalibrateSin(Xs x_i,
 template <typename... Xts,
           typename     Xs = std::tuple<Xts...>,
           typename     Fn = std::function<double(Xts...)>,
-          size_t        d = std::tuple_size<Xs>,
+          size_t        d = sizeof...(Xts),
           typename     IS = std::make_index_sequence<Xts...> >
 Xs CalibrateSin(const Xs &x_i, const Fn &f)
 {
-    return CalibrateSin(std::forward<Xs>(x_i),
-                        std::forward<Fn>(f),
+    return CalibrateSin(std::forward<decltype(x_i)>(x_i),
+                        std::forward<decltype(f)>(f),
                         d
                         IS{});
 }
