@@ -3,6 +3,10 @@
 #include <utility>
 #include <tuple>
 
+#include <Eigen/core>
+
+#include "polyreg.hpp"
+
 // Comment the following line to disable logging
 #define DEBUG
 
@@ -16,11 +20,11 @@
 
 namespace ComputationalLib {
 
-    using namespace std;
-    using namespace ComputationalLib;
-    using namespace SimulationLib;
-
-    using std::get, std::min, std::max;
+    using std::get;
+    using std::min;
+    using std::max;
+    using std::abs;
+    using std::endl;
 
     // Are all arguments truthy?
     template <typename... InTs>
@@ -37,34 +41,36 @@ namespace ComputationalLib {
     std::function<I(Ts...)>
     IdentityFnGen(I value)
     {
-        return [=value] (Ts&&... params) -> I {
+        return [=] (Ts&&... params) -> I {
             return value;
         };
     }
 
     template <typename... Xts,
               size_t...     I,
+              typename     FT = double,
               typename     Xs = std::tuple<Xts...>,
-              typename     Fn = std::function<double(Xts...)>,
-    Xs CalibrateSin(Xs x_i,
-                    const Fn &f,
-                    const size_t &d,
-                    std::index_sequence<I...>)
+              typename     Fn = std::function<FT(Xts...)> >
+    Xs
+    CalibrateSinN(Xs x_i,
+                 const Fn &f,
+                 const size_t &d,
+                 std::index_sequence<I...>)
     {
         // Create a function 'Zero: size_t => double' which always
         // returns zero
-        auto Zero = IdentityFnGen<double, size_t>(0);
+        auto Zero = IdentityFnGen<FT, size_t>(0);
 
         // Create a tuple of 'previous' values, which in this case
         // we assume to be zero
         Xs x_prev {Zero(I)...};
 
-    #ifdef DEBUG
+#ifdef DEBUG
         // Open a CSV file to record the progress of the calibration
         // algorithm
-        ofstream fout("CalibrateSin.csv");
+        std::ofstream fout("CalibrateSinND.csv");
         fout << "Iteration, [Xs], f(Xs...)" << endl;
-    #endif
+#endif
 
         // Omega: The penalty for regressing towards steeper slopes,
         //   used in the construction of the polynomial used in regression
@@ -110,6 +116,18 @@ namespace ComputationalLib {
                  )
             };
 
+#ifdef DEBUG
+            if (hitMaxIters)
+                printf("Hit max #iterations\n");
+            if (insignificantDifference) {
+                printf("Indignificant difference. x_prev:\n");
+                (std::cout << ... << std::to_string(get<I>(x_prev)()));
+                printf("\nx_i:\n");
+                (std::cout << ... << std::to_string(get<I>(x_i)()));
+                std::cout << std::endl;
+            }
+#endif
+
             // Terminate if either of these conditions is satisfied
             return hitMaxIters || insignificantDifference;
         };
@@ -117,13 +135,13 @@ namespace ComputationalLib {
         do {
             // Calculate learning weight for regression
             double lambda_i { (double)idx / (double)(b + idx) };
-            double y_i      { f(x_i) };
+            double y_i      { f(get<I>(x_i)...) };
 
             // Represent x_i as an Eigen vector for use with Regression obj.
             // Comma-initializer syntax described at:
             //   https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
             Eigen::VectorXd x_i_E(d);
-            x_i_E << get<I>(x_i)...;
+            (x_i_E << ... << get<I>(x_i)());
 
             // Add a new point to the regression
             Regression.updateCoefficients(x_i_E, y_i, lambda_i);
@@ -137,36 +155,37 @@ namespace ComputationalLib {
 
             // For each x in X, travel along the slope a little bit in
             // the positive direction
-            x_i = { max(get<I>(lowers),
-                        min(get<I>(uppers),
+            x_i = { max(get<I>(lowers)(),
+                        min(get<I>(uppers)(),
                             get<I>(x_i)() + (alpha*slope_i_E[I])) )... };
 
-    #ifdef DEBUG
-            fout << idx << "," << "[" << (string(get<I>(x_prev)) + ",")... << "]," << y_i << endl;
-    #endif
+#ifdef DEBUG
+            fout << idx  << "," << "[";
+            (fout << ... << (std::to_string(get<I>(x_prev)()) + "–"));
+            fout << "]," << y_i << endl;
+#endif
 
             idx += 1;
         } while (!terminationPred(idx, x_i, x_prev, epsilon));
 
-    #ifdef DEBUG
+#ifdef DEBUG
         fout.flush();
         fout.close();
-    #endif
+#endif
 
         return x_i;
     }
 
     template <typename... Xts,
+              typename     FT = double,
               typename     Xs = std::tuple<Xts...>,
-              typename     Fn = std::function<double(Xts...)>,
-              size_t        d = sizeof...(Xts),
-              typename     IS = std::make_index_sequence<Xts...> >
-    Xs CalibrateSin(const Xs &x_i, const Fn &f)
+              typename     IS = std::index_sequence_for<Xts...> >
+    Xs CalibrateSinN(const Xs &x_i, const std::function<FT(Xts...)> &f)
     {
-        return CalibrateSin(std::forward<decltype(x_i)>(x_i),
-                            std::forward<decltype(f)>(f),
-                            d
-                            IS{});
+        return CalibrateSinN(std::forward<decltype(x_i)>(x_i),
+                             std::forward<decltype(f)>(f),
+                             std::tuple_size<Xs>(),
+                             IS{});
     }
 
 }

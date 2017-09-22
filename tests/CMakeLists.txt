@@ -26,7 +26,8 @@ add_executable (PolyTest
 
 add_executable (Test
 				tests-main.cpp
-				tests-CalibrateSin.cpp)
+				tests-CalibrateSin.cpp
+				tests-CalibrateSinNDimensional.cpp)
 
 # CalibrateSinRunner
 
