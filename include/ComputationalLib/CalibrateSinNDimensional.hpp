@@ -23,8 +23,57 @@ namespace ComputationalLib {
     using std::get;
     using std::min;
     using std::max;
-    using std::abs;
+    using std::sqrt;
+    using std::pow;
     using std::endl;
+
+    template <typename... Xts,
+              typename     Xs = std::tuple<Xts...>,
+              size_t...     I>
+    double
+    SubtractedNorm(Xs a, Xs b, std::index_sequence<I...>)
+    {
+        auto subtracted =
+            std::make_tuple(get<I>(a)() - get<I>(b)()...);
+
+        auto norm = sqrt( (... + pow(get<I>(subtracted), 2)) );
+
+        return norm;
+    }
+
+    template <typename... Xts,
+              typename     Xs = std::tuple<Xts...> >
+    double
+    SubtractedNorm(Xs a, Xs b)
+    {
+        const auto ts = std::tuple_size<Xs>();
+
+        return SubtractedNorm(std::forward<Xs>(a),
+                              std::forward<Xs>(b),
+                              std::make_index_sequence<ts>{});
+    }
+
+    template <typename VectorT = double,
+              typename...  Xts,
+              typename      Xs = std::tuple<Xts...>,
+              size_t...      I >
+    std::vector<VectorT>
+    TplToVec(Xs tpl, std::index_sequence<I...>)
+    {
+        return {get<I>(tpl)()...};
+    }
+
+    template <typename VectorT = double,
+              typename...  Xts,
+              typename      Xs = std::tuple<Xts...> >
+    std::vector<VectorT>
+    TplToVec(Xs tpl)
+    {
+        const auto ts = std::tuple_size<Xs>();
+
+        return TplToVec(std::forward<Xs>(tpl),
+                        std::make_index_sequence<ts>{});
+    }
 
     // Are all arguments truthy?
     template <typename... InTs>
@@ -99,34 +148,14 @@ namespace ComputationalLib {
         PolynomialRegression Regression(2, d, omega);
 
         // The algorithm must stop iterating when we hit 'maxIters', or
-        // when one member of x_i fails to change value by more than
-        // 'epsilon'
+        // when the norm of '(x_i - x_prev)' is smaller than 'epsilon'
         auto terminationPred = [&] (const auto &idx,
                                     const auto &x_i,
                                     const auto &x_prev,
                                     const auto &epsilon) -> bool {
 
             bool hitMaxIters {idx >= maxIters};
-
-            bool insignificantDifference {
-              any(
-              // all( Do we halt on the first parameter satisfying the
-              //      condition or do we wait until all of them satisfy?
-                (abs(get<I>(x_i)() - get<I>(x_prev)()) < epsilon)...
-                 )
-            };
-
-#ifdef DEBUG
-            if (hitMaxIters)
-                printf("Hit max #iterations\n");
-            if (insignificantDifference) {
-                printf("Indignificant difference. x_prev:\n");
-                (std::cout << ... << std::to_string(get<I>(x_prev)()));
-                printf("\nx_i:\n");
-                (std::cout << ... << std::to_string(get<I>(x_i)()));
-                std::cout << std::endl;
-            }
-#endif
+            bool insignificantDifference { SubtractedNorm(x_i, x_prev) < epsilon };
 
             // Terminate if either of these conditions is satisfied
             return hitMaxIters || insignificantDifference;
@@ -138,10 +167,15 @@ namespace ComputationalLib {
             double y_i      { f(get<I>(x_i)...) };
 
             // Represent x_i as an Eigen vector for use with Regression obj.
-            // Comma-initializer syntax described at:
-            //   https://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html
+            // To do this, we create a temporary Eigen vector and assign the
+            // contents of 'x_i' to it.
+            auto x_i_V = TplToVec(x_i);
             Eigen::VectorXd x_i_E(d);
-            (x_i_E << ... << get<I>(x_i)());
+            for (size_t i = 0; i < x_i_V.size(); ++i)
+                x_i_E[i] = x_i_V[i];
+            // for (auto i = x_i_V.begin(); i != x_i_V.end(); ++i)
+                // x_i_E << *i;
+
 
             // Add a new point to the regression
             Regression.updateCoefficients(x_i_E, y_i, lambda_i);
@@ -160,9 +194,9 @@ namespace ComputationalLib {
                             get<I>(x_i)() + (alpha*slope_i_E[I])) )... };
 
 #ifdef DEBUG
-            fout << idx  << "," << "[";
-            (fout << ... << (std::to_string(get<I>(x_prev)()) + "–"));
-            fout << "]," << y_i << endl;
+            fout << idx;
+            (fout << ... << ("," + std::to_string(get<I>(x_prev)())));
+            fout << ",ENDX," << y_i << endl;
 #endif
 
             idx += 1;
@@ -178,14 +212,15 @@ namespace ComputationalLib {
 
     template <typename... Xts,
               typename     FT = double,
-              typename     Xs = std::tuple<Xts...>,
-              typename     IS = std::index_sequence_for<Xts...> >
+              typename     Xs = std::tuple<Xts...> >
     Xs CalibrateSinN(const Xs &x_i, const std::function<FT(Xts...)> &f)
     {
+        const auto ts = std::tuple_size<Xs>();
+
         return CalibrateSinN(std::forward<decltype(x_i)>(x_i),
                              std::forward<decltype(f)>(f),
-                             std::tuple_size<Xs>(),
-                             IS{});
+                             ts,
+                             std::make_index_sequence<ts>{});
     }
 
 }
