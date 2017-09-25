@@ -75,14 +75,6 @@ namespace ComputationalLib {
                         std::make_index_sequence<ts>{});
     }
 
-    // Are all arguments truthy?
-    template <typename... InTs>
-    bool all(InTs... args) { return (... && args); }
-
-    // Are any arguments truthy?
-    template <typename... InTs>
-    bool any(InTs... args) { return (... || args); }
-
     // Returns a function 'f: Ts... => I' whose output
     // is always 'value'
     template <typename I,
