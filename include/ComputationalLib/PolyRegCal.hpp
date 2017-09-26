@@ -109,7 +109,7 @@ namespace ComputationalLib {
 #ifdef DEBUG
         // Open a CSV file to record the progress of the calibration
         // algorithm
-        std::ofstream fout("PolyRegCalD.csv");
+        std::ofstream fout("PolyRegCal.csv");
         fout << "Iteration, [Xs], f(Xs...)" << endl;
 #endif
 
