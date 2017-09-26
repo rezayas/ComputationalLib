@@ -35,9 +35,9 @@ add_library(ComputationalLib ${header} ${src})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${header_path})
 
-target_link_libraries(ComputationalLib PUBLIC 
-                      StatisticalDistributionsLib 
-                      SimulationLib 
+target_link_libraries(ComputationalLib PUBLIC
+                      StatisticalDistributionsLib
+                      SimulationLib
                       Eigen3::Eigen)
 
 target_include_directories(ComputationalLib PUBLIC

@@ -93,7 +93,7 @@ namespace ComputationalLib {
               typename     Xs = std::tuple<Xts...>,
               typename     Fn = std::function<FT(Xts...)> >
     Xs
-    CalibrateSinN(Xs x_i,
+    PolyRegCal(Xs x_i,
                  const Fn &f,
                  const size_t &d,
                  std::index_sequence<I...>)
@@ -109,7 +109,7 @@ namespace ComputationalLib {
 #ifdef DEBUG
         // Open a CSV file to record the progress of the calibration
         // algorithm
-        std::ofstream fout("CalibrateSinND.csv");
+        std::ofstream fout("PolyRegCalD.csv");
         fout << "Iteration, [Xs], f(Xs...)" << endl;
 #endif
 
@@ -205,11 +205,11 @@ namespace ComputationalLib {
     template <typename... Xts,
               typename     FT = double,
               typename     Xs = std::tuple<Xts...> >
-    Xs CalibrateSinN(const Xs &x_i, const std::function<FT(Xts...)> &f)
+    Xs PolyRegCal(const Xs &x_i, const std::function<FT(Xts...)> &f)
     {
         const auto ts = std::tuple_size<Xs>();
 
-        return CalibrateSinN(std::forward<decltype(x_i)>(x_i),
+        return PolyRegCal(std::forward<decltype(x_i)>(x_i),
                              std::forward<decltype(f)>(f),
                              ts,
                              std::make_index_sequence<ts>{});

@@ -1,9 +1,10 @@
 #include <tuple>
+#include <random>
 
 #include <Bound.h>
 
 #include "catch.hpp"
-#include "../include/ComputationalLib/CalibrateSinNDimensional.hpp"
+#include "../include/ComputationalLib/PolyRegCal.hpp"
 
 using namespace ComputationalLib;
 
@@ -28,6 +29,10 @@ auto square = [] (auto n) -> decltype(auto) {
 	return std::pow(n, 2);
 };
 
+auto cube = [] (auto n) -> decltype(auto) {
+	return std::pow(n, 3);
+};
+
 // The following commented code is currently BROKEN:
 //
 // template <typename NumT>
@@ -41,7 +46,7 @@ auto square = [] (auto n) -> decltype(auto) {
 // CalibrateResults<RT>
 // TestND(Xs XInit, F f, std::index_sequence<I...>)
 // {
-// 	auto XFinal = CalibrateSinN(std::forward<Xs>(XInit),
+// 	auto XFinal = PolyRegCal::forward<Xs>(XInit),
 // 								std::forward<F>(f));
 // 	auto YFinal = f(get<I>(XFinal)...);
 
@@ -63,14 +68,14 @@ auto square = [] (auto n) -> decltype(auto) {
 // }
 
 
-TEST_CASE("ndimensional: f(x) = sin(x) + 1", "[calibrateSinNDimensional]") {
+TEST_CASE("ndimensional: f(x) = sin(x) + 1", "[PolyRegCal]") {
     auto X = std::make_tuple(UnitDouble{0.001});
 
     std::function<double(UnitDouble)> f = [&] (UnitDouble x) -> double {
         return std::sin( x() ) + 1;
     };
 
-    auto XFinal = CalibrateSinN(X, f);
+    auto XFinal = PolyRegCal, f);
 
     auto y_f = f(std::get<0>(XFinal));
 
@@ -79,7 +84,7 @@ TEST_CASE("ndimensional: f(x) = sin(x) + 1", "[calibrateSinNDimensional]") {
 
 using ScalarDouble = Bound<double, rZero, rOne>;
 
-TEST_CASE("ndimensional: f(x, b) = sin(x) + b + 1", "[calibrateSinNDimensional]") {
+TEST_CASE("ndimensional: f(x, b) = sin(x) + b + 1", "[PolyRegCal]") {
 	using Xs = std::tuple<UnitDouble, ScalarDouble>;
 	using F = std::function<double(UnitDouble, ScalarDouble)>;
 
@@ -89,7 +94,7 @@ TEST_CASE("ndimensional: f(x, b) = sin(x) + b + 1", "[calibrateSinNDimensional]"
 		return std::sin( x() ) + b() + 1;
 	};
 
-	auto XFinal = CalibrateSinN(X, f);
+	auto XFinal = PolyRegCal, f);
 	auto yFinal = f(get<0>(XFinal), get<1>(XFinal));
 
 	REQUIRE( get<0>(XFinal)() == Approx(M_PI/2).margin(0.02) );
@@ -99,7 +104,7 @@ TEST_CASE("ndimensional: f(x, b) = sin(x) + b + 1", "[calibrateSinNDimensional]"
 	// REQUIRE( true );
 }
 
-TEST_CASE("ndimensional: sphere function n=2", "[calibrateSinNDimensional]") {
+TEST_CASE("ndimensional: sphere function n=2", "[PolyRegCal]") {
 	double margin {0.0001};
 	auto ApproxZero = Approx(0.).margin(margin);
 	size_t n {2};
@@ -114,7 +119,7 @@ TEST_CASE("ndimensional: sphere function n=2", "[calibrateSinNDimensional]") {
 		return -1 * (pow(a(), 2) + pow(b(), 2));
 	};
 
-	auto XFinal = CalibrateSinN(XInit, f);
+	auto XFinal = PolyRegCal, f);
 	auto YFinal = f(get<0>(XFinal), get<1>(XFinal));
 
 	REQUIRE( get<0>(XFinal)() == ApproxZero );
@@ -123,7 +128,37 @@ TEST_CASE("ndimensional: sphere function n=2", "[calibrateSinNDimensional]") {
 	REQUIRE( YFinal == ApproxZero );
 }
 
-// TEST_CASE("ndimensional: Rosenbrock", "[calibrateSinNDimensional]") {
+TEST_CASE("ndimensional: sphere function with noise n=2", "[PolyRegCal]") {
+	double margin {0.0001};
+	auto ApproxZero = Approx(0.).margin(margin);
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::normal_distribution<> d(0, 0.1);
+
+	using Domain = Bound<double, rInt<-2>, rInt<2>>;
+	using Xs = std::tuple<Domain, Domain>;
+	using F = std::function<double(Domain,Domain)>;
+
+	Xs XInit {-2, -2};
+
+
+
+	F f = [&] (auto a, auto b) {
+		double noise {d(gen)};
+		return noise + -1 * (pow(a(), 2) + pow(b(), 2));
+	};
+
+	auto XFinal = PolyRegCal, f);
+	auto YFinal = f(get<0>(XFinal), get<1>(XFinal));
+
+	REQUIRE( get<0>(XFinal)() == ApproxZero );
+	REQUIRE( get<1>(XFinal)() == ApproxZero );
+
+	REQUIRE( YFinal == ApproxZero );
+}
+
+// TEST_CASE("ndimensional: Rosenbrock", "[PolyRegCal]") {
 // 	double margin {0.0001};
 // 	auto ApproxZero = Approx(0.).margin(margin);
 // 	auto ApproxOne  = Approx(1.).margin(margin);
@@ -133,7 +168,7 @@ TEST_CASE("ndimensional: sphere function n=2", "[calibrateSinNDimensional]") {
 // 	using Xs = std::tuple<Domain, Domain>;
 // 	using F = std::function<double(Domain,Domain)>;
 
-// 	Xs XInit {0.9999, 0.9999};
+// 	Xs XInit {0.95, 1.06};
 
 // 	F f = [&] (auto _a, auto _b) {
 // 		double a {_a()};
@@ -143,11 +178,43 @@ TEST_CASE("ndimensional: sphere function n=2", "[calibrateSinNDimensional]") {
 // 		return -1 * prelim;
 // 	};
 
-// 	auto XFinal = CalibrateSinN(XInit, f);
+// 	auto XFinal = PolyRegCal, f);
 // 	auto YFinal = f(get<0>(XFinal), get<1>(XFinal));
 
 // 	REQUIRE( get<0>(XFinal)() == ApproxOne );
 // 	REQUIRE( get<1>(XFinal)() == ApproxOne );
 
 // 	REQUIRE( YFinal == ApproxZero );
+// }
+
+// TEST_CASE("ndimensional: beale's function", "[PolyRegCal]") {
+// 	double margin {0.0001};
+
+// 	auto ApproxN = [&] (double N) { return Approx(N).margin(margin); };
+
+// 	using Domain = Bound<double, std::ratio<-9,2>, std::ratio<9,2>>;
+
+// 	using Xs = std::tuple<Domain, Domain>;
+// 	using F = std::function<double(Domain,Domain)>;
+
+// 	Xs XInit {3, 0.49};
+
+// 	F f = [&] (auto _x, auto _y) {
+// 		double x {_x()};
+// 		double y {_y()};
+
+// 		double t1 {1.5-x+x*y};
+// 		double t2 {2.25-x+x*square(y)};
+// 		double t3 {2.625-x+x*cube(y)};
+
+// 		return square(t1) + square(t2) + square(t3);
+// 	};
+
+// 	auto XFinal = PolyRegCal, f);
+// 	auto YFinal = f(get<0>(XFinal), get<1>(XFinal));
+
+// 	REQUIRE( get<0>(XFinal)() == ApproxN(3) );
+// 	REQUIRE( get<1>(XFinal)() == ApproxN(3) );
+
+// 	REQUIRE( YFinal == ApproxN(0.) );
 // }
