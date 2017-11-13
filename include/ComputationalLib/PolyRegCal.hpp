@@ -75,18 +75,6 @@ namespace ComputationalLib {
                         std::make_index_sequence<ts>{});
     }
 
-    // Returns a function 'f: Ts... => I' whose output
-    // is always 'value'
-    template <typename I,
-              typename... Ts>
-    std::function<I(Ts...)>
-    IdentityFnGen(I value)
-    {
-        return [=] (Ts&&... params) -> I {
-            return value;
-        };
-    }
-
     template <typename... Xts,
               size_t...     I,
               typename     FT = double,
@@ -94,18 +82,10 @@ namespace ComputationalLib {
               typename     Fn = std::function<FT(Xts...)> >
     Xs
     PolyRegCal(Xs x_i,
-                 const Fn &f,
-                 const size_t &d,
-                 std::index_sequence<I...>)
+               const Fn &f,
+               const size_t &d,
+               std::index_sequence<I...>)
     {
-        // Create a function 'Zero: size_t => double' which always
-        // returns zero
-        auto Zero = IdentityFnGen<FT, size_t>(0);
-
-        // Create a tuple of 'previous' values, which in this case
-        // we assume to be zero
-        Xs x_prev {Zero(I)...};
-
 #ifdef DEBUG
         // Open a CSV file to record the progress of the calibration
         // algorithm
@@ -132,8 +112,12 @@ namespace ComputationalLib {
         int idx        {1};
 
         // Form two tuples of lower and upper bounds on each x in X
-        Xs lowers {get<I>(x_i).Lower...};
-        Xs uppers {get<I>(x_i).Upper...};
+        Xs lowers { std::get<I>(x_i).Lower... };
+        Xs uppers { std::get<I>(x_i).Upper... };
+
+        // Create a tuple of 'previous' values, which in this case
+        // we assume to be the lower bound of each variable
+        Xs x_prev { std::get<I>(lowers)... };
 
         // Set up a regression using a 2nd-degree polynomial for a
         // function f(X) where the set X has 'd' members
@@ -156,7 +140,7 @@ namespace ComputationalLib {
         do {
             // Calculate learning weight for regression
             double lambda_i { (double)idx / (double)(b + idx) };
-            double y_i      { f(get<I>(x_i)...) };
+            double y_i      { f(get<I>(x_i)()...) };
 
             // Represent x_i as an Eigen vector for use with Regression obj.
             // To do this, we create a temporary Eigen vector and assign the
@@ -165,9 +149,6 @@ namespace ComputationalLib {
             Eigen::VectorXd x_i_E(d);
             for (size_t i = 0; i < x_i_V.size(); ++i)
                 x_i_E[i] = x_i_V[i];
-            // for (auto i = x_i_V.begin(); i != x_i_V.end(); ++i)
-                // x_i_E << *i;
-
 
             // Add a new point to the regression
             Regression.updateCoefficients(x_i_E, y_i, lambda_i);
@@ -210,9 +191,9 @@ namespace ComputationalLib {
         const auto ts = std::tuple_size<Xs>();
 
         return PolyRegCal(std::forward<decltype(x_i)>(x_i),
-                             std::forward<decltype(f)>(f),
-                             ts,
-                             std::make_index_sequence<ts>{});
+                          std::forward<decltype(f)>(f),
+                          ts,
+                          std::make_index_sequence<ts>{});
     }
 
 }
