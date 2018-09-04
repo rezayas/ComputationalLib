@@ -3,7 +3,7 @@
 #include <utility>
 #include <tuple>
 
-#include <Eigen/core>
+#include <Eigen/Core>
 
 #include "polyreg.hpp"
 

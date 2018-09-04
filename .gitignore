@@ -3,6 +3,7 @@
 a.out
 /ComputationalLib
 /.vs
+/.vscode
 
 tests/LinearTest
 tests/Makefile
