@@ -10,14 +10,6 @@
 // Comment the following line to disable logging
 #define DEBUG
 
-// Constants for algorithm
-#define OMEGA    0.001
-#define ALPHA    0.05
-#define EPSILON  0.00001
-
-#define B_       50
-#define MAXITERS 1000
-
 namespace ComputationalLib {
 
     using std::get;
@@ -80,11 +72,27 @@ namespace ComputationalLib {
               typename     FT = double,
               typename     Xs = std::tuple<Xts...>,
               typename     Fn = std::function<FT(Xts...)> >
+    
+    // Omega: The penalty for regressing towards steeper slopes,
+    //   used in the construction of the polynomial used in regression
+    // Alpha: The step size. It is multiplied by the slope to calculate
+    //   the distance to the next vector x_i
+    // Epsilon: The minimum distance for each step. When a step becomes
+    //   smaller than epsilon, the algorithm terminates
+    // 'b': A constant used to calculate Lambda, the learning weight.
+    //   As 'b' increases, lambda approaches 1. Therefore, the values of
+    //   'b' and 'maxIters' should be chosen such that "b is very
+    //   close to 1 as b approaches 'maxIters'??
     Xs
     PolyRegCal(Xs x_i,
                const Fn &f,
                const size_t &d,
-               std::index_sequence<I...>)
+               std::index_sequence<I...>,
+               double omega,
+               double alpha,
+               double epsilon,
+               int b,
+               int maxIters)
     {
 #ifdef DEBUG
         // Open a CSV file to record the progress of the calibration
@@ -92,23 +100,6 @@ namespace ComputationalLib {
         std::ofstream fout("PolyRegCal.csv");
         fout << "Iteration, [Xs], f(Xs...)" << endl;
 #endif
-
-        // Omega: The penalty for regressing towards steeper slopes,
-        //   used in the construction of the polynomial used in regression
-        // Alpha: The step size. It is multiplied by the slope to calculate
-        //   the distance to the next vector x_i
-        // Epsilon: The minimum distance for each step. When a step becomes
-        //   smaller than epsilon, the algorithm terminates
-        // 'b': A constant used to calculate Lambda, the learning weight.
-        //   As 'b' increases, lambda approaches 1. Therefore, the values of
-        //   'b' and 'maxIters' should be chosen such that "b is very
-        //   close to 1 as b approaches 'maxIters'??
-        double omega   {OMEGA};
-        double alpha   {ALPHA};
-        double epsilon {EPSILON};
-
-        int b          {B_};
-        int maxIters   {MAXITERS};
         int idx        {1};
 
         // Form two tuples of lower and upper bounds on each x in X
@@ -186,20 +177,25 @@ namespace ComputationalLib {
     template <typename... Xts,
               typename     FT = double,
               typename     Xs = std::tuple<Xts...> >
-    Xs PolyRegCal(const Xs &x_i, const std::function<FT(Xts...)> &f)
+    Xs PolyRegCal(const Xs &x_i, 
+                  const std::function<FT(Xts...)> &f, 
+                  double omega,
+                  double alpha,
+                  double epsilon,
+                  int b,
+                  int maxIters)
     {
         const auto ts = std::tuple_size<Xs>();
 
         return PolyRegCal(std::forward<decltype(x_i)>(x_i),
                           std::forward<decltype(f)>(f),
                           ts,
-                          std::make_index_sequence<ts>{});
+                          std::make_index_sequence<ts>{},
+                          omega,
+                          alpha,
+                          epsilon,
+                          b,
+                          maxIters);
     }
 
 }
-// Clean up constants
-#undef OMEGA
-#undef ALPHA
-#undef EPSILON
-#undef B_
-#undef MAXITERS

@@ -23,6 +23,15 @@ using UnitDouble = Bound<double,
                          rTwoPi>;
 
 #define _USE_MATH_DEFINES // for C++
+
+// Constants for algorithm
+#define OMEGA    0.001
+#define ALPHA    0.05
+#define EPSILON  0.00001
+
+#define B_       50
+#define MAXITERS 1000
+
 #include <cmath>
 
 auto square = [] (auto n) -> decltype(auto) {
@@ -75,7 +84,7 @@ TEST_CASE("ndimensional: f(x) = sin(x) + 1", "[PolyRegCal]") {
         return std::sin( x() ) + 1;
     };
 
-    auto XFinal = PolyRegCal(X, f);
+    auto XFinal = PolyRegCal(X, f, OMEGA, ALPHA, EPSILON, B_, MAXITERS);
 
     auto y_f = f(std::get<0>(XFinal));
 
@@ -94,7 +103,7 @@ TEST_CASE("ndimensional: f(x, b) = sin(x) + b + 1", "[PolyRegCal]") {
 		return std::sin( x() ) + b() + 1;
 	};
 
-	auto XFinal = PolyRegCal(X, f);
+	auto XFinal = PolyRegCal(X, f, OMEGA, ALPHA, EPSILON, B_, MAXITERS);
 	auto yFinal = f(get<0>(XFinal), get<1>(XFinal));
 
 	REQUIRE( get<0>(XFinal)() == Approx(M_PI/2).margin(0.02) );
@@ -119,7 +128,7 @@ TEST_CASE("ndimensional: sphere function n=2", "[PolyRegCal]") {
 		return -1 * (pow(a(), 2) + pow(b(), 2));
 	};
 
-	auto XFinal = PolyRegCal(XInit, f);
+	auto XFinal = PolyRegCal(XInit, f, OMEGA, ALPHA, EPSILON, B_, MAXITERS);
 	auto YFinal = f(get<0>(XFinal), get<1>(XFinal));
 
 	REQUIRE( get<0>(XFinal)() == ApproxZero );
